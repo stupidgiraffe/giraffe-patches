@@ -30,11 +30,8 @@ jobs:
         with:
           gradle-version: '8.14.3'
       - uses: dtolnay/rust-toolchain@stable
-      - name: Build pinned Reseam CLI
-        run: |
-          git clone --depth=1 --branch v0.20.0 https://git.reseam.app/reseam/reseam.git /tmp/reseam
-          cargo build --release -p reseam-cli --manifest-path /tmp/reseam/Cargo.toml
-          test -x /tmp/reseam/target/release/reseam
+      - name: Install Reseam CLI 0.20.0
+        run: bash scripts/install_reseam_cli.sh
       - name: Configure protected signing key
         env:
           SIGNING_SEED: ${{ secrets.RESEAM_SIGNING_KEY_BASE64 }}
@@ -47,7 +44,7 @@ jobs:
           test -s "$RUNNER_TEMP/giraffe/signing.key"
       - name: Build, inspect and stage release
         env:
-          RESEAM_BIN: /tmp/reseam/target/release/reseam
+          RESEAM_BIN: ${{ runner.temp }}/reseam-cli/reseam
           RESEAM_BUNDLE_KEY: ${{ runner.temp }}/giraffe/signing.key
           RESEAM_RELEASE_VERSION: ${{ inputs.version }}
           RESEAM_BUNDLE_URL: https://github.com/stupidgiraffe/giraffe-patches/releases/download/${{ inputs.version }}/giraffe-patches.reseam

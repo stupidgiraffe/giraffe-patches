@@ -35,7 +35,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.14.3'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Reseam CLI 0.20.0
+        run: bash scripts/install_reseam_cli.sh
       - name: Compile Smart Launcher patch module
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
         run: gradle :apps:smartlauncher:patch:classes --stacktrace
