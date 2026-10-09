@@ -41,7 +41,7 @@ Both are scoped to Smart Launcher `6.6 build 021`. **No Discord, YouTube, Instag
 3. Review and trust the bundle **public signing key**. Enable **Enable Pro** and its Smart Launcher dependency; disable unrelated universal patches during troubleshooting.
 4. Patch your original APKM/APK. Install the resulting package and verify on your device.
 
-**Release status:** The initial source repository is published first. A *publicly reproducible, independently verified* release bundle and download will follow successful release-pipeline verification. **No release link is represented as available until an actual release exists.** A known-working signed test artifact was validated on-device; its provenance is recorded in [Compatibility & provenance](docs/COMPATIBILITY.md).
+**Release status:** The source and CI compile successfully, and a **signed preview build** can be downloaded from the [latest successful Preview workflow](https://github.com/stupidgiraffe/giraffe-patches/actions/workflows/preview.yml) (open a run → **Artifacts** → `giraffe-patches-preview-reseam` → extract the single `.reseam` file). Its signing key is **temporary**; this newly compiled Giraffe-branded bundle has **not yet been tested on-device**. The previously working signed test bundle's provenance is recorded in [Compatibility & provenance](docs/COMPATIBILITY.md). Stable downloads will appear on [Releases](https://github.com/stupidgiraffe/giraffe-patches/releases) only after a permanent signing key and real device verification.
 
 > Reseam bundles contain patches, **not APKs**. We never distribute proprietary Smart Launcher packages, patched app APKs, private signing keys, or user data.
 
