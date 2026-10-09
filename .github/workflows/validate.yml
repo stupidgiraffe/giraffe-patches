@@ -1,0 +1,41 @@
+name: Validate patch source
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    name: Metadata and matcher invariants
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run offline regression checks
+        run: python -m unittest discover -s tests -v
+      - name: Verify tracked file hygiene
+        run: |
+          ! git ls-files | grep -E '\.(apk|apkm|apks|xapk|jks|keystore|pk8|der|p12|pfx|reseam)$'
+  compile:
+    name: Reseam SDK compile (0.20.0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
+      - name: Compile Smart Launcher patch module
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+        run: gradle :apps:smartlauncher:patch:classes --stacktrace

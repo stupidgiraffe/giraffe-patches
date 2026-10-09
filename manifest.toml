@@ -1,0 +1,5 @@
+[bundle]
+name = "giraffe-patches"
+author = "stupidgiraffe"
+description = "Independent, version-scoped Android patches for Reseam; currently targeting Smart Launcher 6.6 build 021"
+format_version = 1

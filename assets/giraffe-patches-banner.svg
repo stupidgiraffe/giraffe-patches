@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="390" viewBox="0 0 1280 390" role="img" aria-labelledby="title desc">
+<title id="title">Giraffe Patches</title><desc id="desc">Dark purple, mint and amber geometric giraffe-themed header, with an independent Android patches subtitle.</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b1020"/><stop offset=".55" stop-color="#131b34"/><stop offset="1" stop-color="#1b1531"/></linearGradient>
+ <linearGradient id="neck" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffdc89"/><stop offset="1" stop-color="#f1a85d"/></linearGradient>
+ <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#79e9cd"/><stop offset="1" stop-color="#bbaaff"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="35"/></filter>
+ <pattern id="dots" width="35" height="35" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="1" fill="#9aa1bd" opacity=".14"/></pattern>
+</defs>
+<rect width="1280" height="390" rx="24" fill="url(#bg)"/>
+<circle cx="1070" cy="155" r="175" fill="#8e70f0" opacity=".11" filter="url(#glow)"/>
+<circle cx="145" cy="340" r="150" fill="#70dfc2" opacity=".07" filter="url(#glow)"/>
+<rect width="1280" height="390" rx="24" fill="url(#dots)"/>
+<path d="M58 63H134" stroke="url(#accent)" stroke-width="6" stroke-linecap="round"/>
+<text x="62" y="117" fill="#c8d0e7" font-family="system-ui,Segoe UI,sans-serif" font-size="18" letter-spacing="3.7">INDEPENDENT PATCH COLLECTION</text>
+<text x="55" y="222" fill="#fff9eb" font-family="system-ui,Segoe UI,sans-serif" font-weight="800" font-size="91" letter-spacing="-4">Giraffe</text>
+<text x="55" y="312" fill="url(#accent)" font-family="system-ui,Segoe UI,sans-serif" font-weight="800" font-size="91" letter-spacing="-4">Patches.</text>
+<text x="61" y="356" fill="#c5cbdd" font-family="system-ui,Segoe UI,sans-serif" font-size="20">Android patching for Reseam · Verified version support</text>
+<!-- abstract giraffe illustration -->
+<g transform="translate(935 18)">
+ <path d="M96 320 L108 155 Q113 136 136 136 L156 136 Q174 134 177 157 L186 320 Z" fill="url(#neck)" stroke="#1d233b" stroke-width="8"/>
+ <path d="M108 195 L147 181 L125 216Z M154 247 L178 228 L176 265Z M104 278 L137 291 L105 312Z" fill="#b8744f" opacity=".85"/>
+ <rect x="108" y="54" width="14" height="62" rx="7" transform="rotate(-8 115 85)" fill="#f1b771" stroke="#1d233b" stroke-width="5"/>
+ <rect x="161" y="49" width="14" height="62" rx="7" transform="rotate(7 168 80)" fill="#f1b771" stroke="#1d233b" stroke-width="5"/>
+ <circle cx="114" cy="56" r="14" fill="#b77859"/>
+ <circle cx="171" cy="49" r="14" fill="#b77859"/>
+ <path d="M91 119 Q68 70 100 83 L119 117Z M174 111 Q207 70 212 93 L185 131Z" fill="#f7bc74" stroke="#1d233b" stroke-width="7"/>
+ <path d="M91 108 Q119 87 159 93 Q198 103 195 151 Q197 180 169 187 L112 186 Q82 171 86 140Z" fill="url(#neck)" stroke="#1d233b" stroke-width="8"/>
+ <path d="M166 157 Q229 145 226 183 Q217 211 171 205 L156 183Z" fill="#ffe4ae" stroke="#1d233b" stroke-width="8"/>
+ <circle cx="113" cy="144" r="7.5" fill="#1b2035"/><circle cx="166" cy="147" r="7.5" fill="#1b2035"/>
+ <path d="M125 163 Q141 170 155 163" fill="none" stroke="#a45c4d" stroke-linecap="round" stroke-width="4"/>
+ <circle cx="199" cy="184" r="4" fill="#7d5755"/>
+ <path d="M111 224 L146 224" stroke="#1d233b" opacity=".3" stroke-width="3"/>
+ <!-- small code glyph -->
+ <rect x="6" y="234" width="82" height="73" rx="18" fill="#242f4e" stroke="#79e9cd" stroke-width="3"/>
+ <path d="M34 260 L22 273 L34 285 M59 260 L71 273 L59 285 M50 254 L42 291" stroke="#79e9cd" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<path d="M886 347H1192" stroke="#344058" stroke-width="1"/>
+<rect x="1090" y="24" rx="13" width="159" height="31" fill="#1d3b40" stroke="#4c937e" stroke-width="1"/>
+<circle cx="1110" cy="39" r="5" fill="#85f0ce"/>
+<text x="1124" y="44" fill="#a2f5dc" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="600">BUILD 021</text>
+</svg>

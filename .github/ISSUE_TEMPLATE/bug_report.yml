@@ -1,0 +1,45 @@
+name: Patch failure
+description: Report a reproducible failure on an advertised app version
+title: "[Smart Launcher] "
+labels: ["bug", "compatibility"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Smart Launcher exact version and version code
+      placeholder: "6.6 build 021 (660210)"
+    validations:
+      required: true
+  - type: input
+    id: reseam
+    attributes:
+      label: Reseam Manager / engine version
+    validations:
+      required: true
+  - type: dropdown
+    id: arch
+    attributes:
+      label: APK package / architecture
+      options: ["ARM64 APKM", "Universal APKM", "Single APK", "Other / unsure"]
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Android version and device CPU architecture
+      placeholder: "Android 16, arm64-v8a"
+    validations:
+      required: true
+  - type: textarea
+    id: failure
+    attributes:
+      label: Exact error and last 30 log lines
+      description: "Redact usernames, user data, device IDs, and tokens."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce and what you expected
+    validations:
+      required: true

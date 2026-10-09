@@ -1,0 +1,44 @@
+name: Watch Smart Launcher uploads
+
+on:
+  schedule:
+    - cron: '37 1 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check public release feed
+        id: watch
+        run: |
+          python scripts/check_smart_launcher_version.py > report.json
+          cat report.json
+          python - <<'PY'
+          import json, os
+          report = json.load(open("report.json", encoding="utf-8"))
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write("newer=" + str(report.get("newer_version_observed", False)).lower() + "\n")
+              output.write("latest=" + str(report.get("observed_latest_build") or "") + "\n")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("### Smart Launcher upload watch\n\n")
+              summary.write("Observed: " + str(report.get("observed_latest_build", "unavailable")) + "; patchable: 021 only.\n")
+          PY
+      - name: Open issue if a newer build exists
+        if: steps.watch.outputs.newer == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LATEST: ${{ steps.watch.outputs.latest }}
+        run: |
+          TITLE="[Update watch] Smart Launcher build ${LATEST} observed"
+          if ! gh issue list --state all --limit 100 --json title --jq '.[].title' | grep -Fxq "$TITLE"; then
+            gh issue create --title "$TITLE" --body "APKMirror appears to list Smart Launcher build ${LATEST}. This does NOT mean Giraffe Patches supports it. Verify authentic version code, diff target APK bytecode and manually test before updating advertised compatibility. Source: https://www.apkmirror.com/uploads/?appcategory=smart-launcher" --label "enhancement" || true
+          fi

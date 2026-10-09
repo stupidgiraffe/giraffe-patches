@@ -1,0 +1,30 @@
+# SDK / Gradle
+.gradle/
+build/
+**/build/
+.idea/
+*.iml
+local.properties
+
+# Do not redistribute proprietary app packages, patched installers, or private keys
+*.apk
+*.apkm
+*.apks
+*.xapk
+*.aab
+*.jks
+*.keystore
+*.pk8
+*.der
+*.key
+*.pem
+*.p12
+*.pfx
+*.reseam
+!docs/examples/*.reseam.txt
+
+# Debug and caches
+.DS_Store
+*.log
+__pycache__/
+.pytest_cache/
