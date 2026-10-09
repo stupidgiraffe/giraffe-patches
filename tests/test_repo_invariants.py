@@ -32,12 +32,14 @@ class TestRepoInvariants(unittest.TestCase):
         self.assertIn("inClass(purchaseItemsClass)", initializer.group())
         self.assertIn('name("<clinit>")', initializer.group())
         self.assertNotIn("first()", initializer.group())
+        self.assertIn("flags(AccessFlags.STATIC or AccessFlags.CONSTRUCTOR)", initializer.group())
         self.assertNotIn("Lmn8;", initializer.group())
 
     def test_patch_dependency(self):
         self.assertIn("val disableSmartLauncherSignatureCheck = patch", self.source)
         self.assertIn('val enableSmartLauncherPro = patch("Enable Pro")', self.source)
         self.assertIn("dependsOn(disableSmartLauncherSignatureCheck)", self.source)
+        self.assertIn("FieldRef(cls.descriptor, field.name, field.fieldType)", self.source)
 
     def test_metadata_contains_real_build(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")

@@ -13,6 +13,7 @@ package app.hoodles.reseam.smartlauncher
 import app.reseam.patch.*
 import app.reseam.patch.dex.AccessFlags
 import app.reseam.patch.dex.Opcode
+import app.reseam.patch.types.FieldRef
 
 private val SMART_LAUNCHER = "ginlemon.flowerfree"("6.6 build 021")
 
@@ -55,7 +56,7 @@ private val purchaseItemsCtor = method("Smart Launcher purchase-items initialize
     inClass(purchaseItemsClass)
     name("<clinit>")
     strings("lifetime")
-    flags(AccessFlags.STATIC, AccessFlags.CONSTRUCTOR)
+    flags(AccessFlags.STATIC or AccessFlags.CONSTRUCTOR)
     opcode(Opcode.INVOKE_DIRECT)
     opcode(Opcode.SPUT_OBJECT)
     opcode(Opcode.NEW_INSTANCE)
@@ -85,17 +86,17 @@ private val purchasableItemSet = method("PurchasableItem setter") {
 }
 
 private val getApp = method("Smart Launcher App getter") {
-    flags(AccessFlags.PUBLIC, AccessFlags.STATIC)
+    flags(AccessFlags.PUBLIC or AccessFlags.STATIC)
     params()
     returns("Lginlemon/flower/App;")
 }
 
 private val purchaseItemsSingleton = fieldTarget("PurchaseItems singleton") {
     val cls = purchaseItemsClass.classDef
-    cls.staticFields
+    val field = cls.staticFields
         .firstOrNull { it.fieldType == cls.descriptor }
-        ?.ref
         ?: error("Smart Launcher: PurchaseItems singleton field not found")
+    FieldRef(cls.descriptor, field.name, field.fieldType)
 }
 
 private val premiumAccessChanged = method("premium access changed broadcaster") {
