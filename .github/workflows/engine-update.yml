@@ -1,0 +1,81 @@
+name: Prepare new Reseam engine support
+
+on:
+  schedule:
+    - cron: '19 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Find latest released engine and confirm Maven plugin is available
+        id: upstream
+        run: |
+          python - <<'PY'
+          import json, os, pathlib, re, urllib.request
+          source = pathlib.Path("settings.gradle.kts").read_text()
+          current = re.search(r'id\("app\.reseam\.workspace"\) version "(\d+)\.(\d+)\.(\d+)"', source)
+          if not current:
+              raise SystemExit("Missing SDK version")
+          request = urllib.request.Request(
+              "https://git.reseam.app/api/v1/repos/reseam/reseam/releases/latest",
+              headers={"User-Agent": "giraffe-patches-updater"},
+          )
+          with urllib.request.urlopen(request, timeout=25) as response:
+              latest = json.load(response)["tag_name"]
+          match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", latest)
+          if not match:
+              raise SystemExit(f"Unexpected release tag: {latest}")
+          newer = tuple(map(int, match.groups())) > tuple(map(int, current.groups()))
+          if newer:
+              version = latest.removeprefix("v")
+              pom = (f"https://git.reseam.app/api/packages/reseam/maven/app/reseam/workspace/"
+                     f"app.reseam.workspace.gradle.plugin/{version}/"
+                     f"app.reseam.workspace.gradle.plugin-{version}.pom")
+              with urllib.request.urlopen(urllib.request.Request(pom, method="HEAD"), timeout=25) as response:
+                  if response.status != 200:
+                      raise SystemExit(f"Missing SDK plugin: {pom}")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"latest={latest}\n")
+              output.write(f"newer={str(newer).lower()}\n")
+          PY
+      - name: Create update branch and review PR (never self-merge)
+        if: steps.upstream.outputs.newer == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LATEST: ${{ steps.upstream.outputs.latest }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH="automation/reseam-${LATEST#v}"
+          if gh pr list --state open --head "$BRANCH" --json number --jq 'length' | grep -qx '[1-9][0-9]*'; then
+            echo "Update PR for $LATEST already exists"
+            exit 0
+          fi
+          python scripts/bump_reseam_engine.py "$LATEST"
+          git diff --quiet && exit 0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$BRANCH"
+          git add settings.gradle.kts scripts/install_reseam_cli.sh \
+            .github/workflows/preview.yml .github/workflows/release.yml \
+            .github/workflows/validate.yml docs/BUILD.md docs/RELEASING.md \
+            docs/COMPATIBILITY.md README.md
+          git commit -m "chore: prepare Reseam engine $LATEST"
+          git push -u origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" \
+            --title "chore: update Reseam engine to $LATEST" \
+            --body "Automated Reseam engine candidate. The SDK, CLI and CI pins were bumped together. CI still needs to compile. **Do not auto-merge or release** until Smart Launcher 6.6 build 021 is patch-tested on a device. This does not add compatibility for newer Smart Launcher releases."
+          # The GITHUB_TOKEN-authored PR does not itself trigger push/PR workflows.
+          gh workflow run validate.yml --ref "$BRANCH"

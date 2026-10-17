@@ -13,13 +13,19 @@ A release means **both** a source build that produces a valid signed Reseam bund
 
 **The historical test signer's private key is not available.** Expect a one-time signer change when the official Giraffe Patches release key is generated. Treat the new key as permanent thereafter.
 
-## GitHub workflow
+## GitHub workflow and Manager automatic updates
 
-Use the manually triggered **Release** workflow on a committed, reviewed version after configuring the secret and variable. The workflow pins CLI and SDK to **0.26.2**, compiles, signs, inspects the bundle, emits `patches.json`, and attaches both to a GitHub release.
+The [stable update index](https://github.com/stupidgiraffe/giraffe-patches/releases/latest/download/patches.json) is hosted as a GitHub Release asset; it starts working after the first production-signed release. Users must **add the `patches.json` URL as a source** in Reseam Manager rather than importing a standalone preview `.reseam`. Reseam Manager checks the index for releases; it only trusts the same signing key. Do not publish ephemeral preview keys into this feed.
+
+The workflow automatically restores the previous stable release's `patches.json` before extending it. It refuses a signer mismatch or a reused release tag; each old `.reseam` stays immutable. Pushing an approved `vX.Y.Z` tag runs the workflow automatically; manual dispatch remains available. Do **not** tag an untested engine update just to satisfy Manager.
+
+Daily engine monitoring prepares a review PR when a newer Reseam SDK/CLI is published, but deliberately does not merge, sign or release it without compatibility verification. Repository Actions must allow creating pull requests for the updater bot.
+
+Use the manually triggered **Release** workflow on a committed, reviewed version after configuring the secret and variable. The workflow pins CLI and SDK to **0.26.2**, compiles, signs, inspects the bundle, restores release history and emits cumulative `patches.json` alongside the bundle.
 
 A release must not be triggered until the new key/bundle has been device-tested. **Do not force publication after a compilation failure.** Keep old release URLs immutable.
 
-The [Reseam publish command](https://reseam.app/docs/engine/publish/) creates an index for Manager clients. If maintaining a cumulative `patches.json` across releases, preserve the existing published file before running `reseam publish patches` so older release entries are not silently lost.
+The [Reseam publish command](https://reseam.app/docs/engine/publish/) creates the Manager index. The release workflow preserves history automatically, and verifies its pinned public key.
 
 ## Before tagging
 

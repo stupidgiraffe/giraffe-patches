@@ -57,6 +57,22 @@ class TestRepoInvariants(unittest.TestCase):
             source = (ROOT / ".github/workflows" / workflow).read_text(encoding="utf-8")
             self.assertIn(f"Install Reseam CLI {version.group(1)}", source)
 
+    def test_update_feed_is_stable_and_signed(self):
+        workflow = (ROOT / ".github/workflows/release.yml").read_text(encoding="utf-8")
+        self.assertIn("releases/latest", workflow)
+        self.assertIn("RESEAM_SIGNING_KEY_BASE64", workflow)
+        self.assertIn("RESEAM_PUBLIC_KEY_HEX", workflow)
+        self.assertIn("gh release download", workflow)
+        self.assertIn("publish patches", workflow)
+        self.assertIn("refusing to discard index history", workflow.lower())
+
+    def test_engine_update_pr_is_reviewed(self):
+        watcher = (ROOT / ".github/workflows/engine-update.yml").read_text(encoding="utf-8")
+        self.assertIn("scripts/bump_reseam_engine.py", watcher)
+        self.assertIn("gh pr create", watcher)
+        self.assertNotIn("gh pr merge", watcher)
+        self.assertNotIn("gh release create", watcher)
+
     def test_no_proprietary_binary_in_tree(self):
         disallowed = {".apk", ".apkm", ".apks", ".xapk", ".key", ".p12", ".jks", ".reseam"}
         found = [str(p.relative_to(ROOT)) for p in ROOT.rglob("*") if p.is_file() and p.suffix.lower() in disallowed]
