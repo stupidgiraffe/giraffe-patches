@@ -30,7 +30,7 @@ jobs:
         with:
           gradle-version: '8.14.3'
       - uses: dtolnay/rust-toolchain@stable
-      - name: Install Reseam CLI 0.26.0
+      - name: Install Reseam CLI 0.26.2
         run: bash scripts/install_reseam_cli.sh
       - name: Configure protected signing key
         env:

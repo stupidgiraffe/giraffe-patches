@@ -1,13 +1,13 @@
 # Build from source
 
-This repository uses Reseam's [official bundle workspace plugin](https://reseam.app/docs/engine/bundles/), pinned to **0.26.0** to match the current Reseam engine line (the historical device-tested reference used 0.20.0). It is not a fork of Reseam Manager.
+This repository uses Reseam's [official bundle workspace plugin](https://reseam.app/docs/engine/bundles/), pinned to **0.26.2** to match the current Reseam engine line (the historical device-tested reference used 0.20.0). It is not a fork of Reseam Manager.
 
 ## Prerequisites
 
 - JDK **17** (Reseam's documented baseline)
 - Android SDK, `ANDROID_HOME` pointing at its root (with a platform `android.jar`)
 - Gradle **8.14.3** or a verified compatible version (a wrapper is intentionally not included until its upstream binary can be reviewed)
-- Reseam CLI **0.26.0**, installed as `reseam` or pointed to by `RESEAM_BIN`
+- Reseam CLI **0.26.2**, installed as `reseam` or pointed to by `RESEAM_BIN`
 - Private Ed25519 signing **seed** generated with the matching CLI. Never commit, upload, or echo it.
 
 ```bash

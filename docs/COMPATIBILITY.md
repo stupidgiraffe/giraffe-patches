@@ -2,7 +2,7 @@
 
 **Current device-tested target:** Smart Launcher **6.6 build 021**, Android package `ginlemon.flowerfree`, version code `660210`.
 
-**Current source toolchain:** Reseam SDK and CLI **0.26.0**. The previous successful phone test used a **0.20.0** bundle; a newly built 0.26.0 bundle still needs an on-device retest.
+**Current source toolchain:** Reseam SDK and CLI **0.26.2**. The previous successful phone test used a **0.20.0** bundle; a newly built 0.26.2 bundle still needs an on-device retest.
 
 | Item | Status | Evidence |
 | --- | --- | --- |

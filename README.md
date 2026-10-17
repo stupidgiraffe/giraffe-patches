@@ -21,7 +21,7 @@ Independent community project · Not affiliated with Reseam, Smart Launcher, or 
 <tr><td>Package</td><td><code>ginlemon.flowerfree</code></td></tr>
 <tr><td>Device verification</td><td>Android 16, ARM64 phone; patch applied, installed, and launched (community tester, October 2026)</td></tr>
 <tr><td>APK variants</td><td>ARM64 and universal APKM packages have matching DEX bytecode. Patched installation confirmed on one device, <em>not</em> independently on every variant.</td></tr>
-<tr><td>Reseam bundle engine</td><td><code>0.26.0</code> (current source builds); <code>0.20.0</code> (historical device-tested bundle)</td></tr>
+<tr><td>Reseam bundle engine</td><td><code>0.26.2</code> (current source builds); <code>0.20.0</code> (historical device-tested bundle)</td></tr>
 <tr><td>Upstream comparison</td><td>Morphe lists 6.6 build 016; this is an <em>independent port</em> with a build-021 matcher correction.</td></tr>
 </table>
 
@@ -59,7 +59,7 @@ Read the [compatibility record](docs/COMPATIBILITY.md), [build guide](docs/BUILD
 
 ## 🧰 Developers
 
-The source lives in `apps/smartlauncher/patch/` and uses the official [Reseam patch SDK](https://reseam.app/docs/engine/bundles/). The workspace plugin and matching CLI are pinned to `0.26.0`. The historical device-tested bundle used 0.20.0. Run `gradle bundle` with the matching Reseam CLI, Android SDK, and a private signing key; see [BUILD.md](docs/BUILD.md) for exact requirements.
+The source lives in `apps/smartlauncher/patch/` and uses the official [Reseam patch SDK](https://reseam.app/docs/engine/bundles/). The workspace plugin and matching CLI are pinned to `0.26.2`. The historical device-tested bundle used 0.20.0. Run `gradle bundle` with the matching Reseam CLI, Android SDK, and a private signing key; see [BUILD.md](docs/BUILD.md) for exact requirements.
 
 We keep the compatibility matcher tied to **the premium-access-change owner class**, not an ambiguous `"lifetime"` string that matches two classes in build 021. That correction is the main difference from the unsuccessful early port.
 

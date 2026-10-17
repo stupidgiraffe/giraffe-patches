@@ -11,6 +11,6 @@ pluginManagement {
         ?.let { includeBuild(it) }
 }
 plugins {
-    id("app.reseam.workspace") version "0.26.0"
+    id("app.reseam.workspace") version "0.26.2"
 }
 rootProject.name = "giraffe-patches"

@@ -42,3 +42,45 @@ jobs:
           if ! gh issue list --state all --limit 100 --json title --jq '.[].title' | grep -Fxq "$TITLE"; then
             gh issue create --title "$TITLE" --body "APKMirror appears to list Smart Launcher build ${LATEST}. This does NOT mean Giraffe Patches supports it. Verify authentic version code, diff target APK bytecode and manually test before updating advertised compatibility. Source: https://www.apkmirror.com/uploads/?appcategory=smart-launcher" --label "enhancement" || true
           fi
+
+  reseam-engine:
+    name: Watch upstream Reseam engine release line
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check published engine version
+        id: engine
+        run: |
+          python - <<'PY'
+          import json, os, pathlib, re, urllib.request
+          settings = pathlib.Path("settings.gradle.kts").read_text()
+          match = re.search(r'id\("app\.reseam\.workspace"\) version "(\d+)\.(\d+)\.(\d+)"', settings)
+          if not match:
+              raise SystemExit("Reseam SDK version not found")
+          current = tuple(map(int, match.groups()))
+          request = urllib.request.Request(
+              "https://git.reseam.app/api/v1/repos/reseam/reseam/releases/latest",
+              headers={"User-Agent": "giraffe-patches-version-watch"},
+          )
+          with urllib.request.urlopen(request, timeout=20) as response:
+              tag = json.load(response)["tag_name"]
+          latest = tuple(map(int, tag.removeprefix("v").split(".")))
+          if len(latest) != 3:
+              raise SystemExit(f"Unexpected upstream Reseam tag: {tag}")
+          new_line = latest[:2] > current[:2]
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"new_line={str(new_line).lower()}\n")
+              out.write(f"latest={tag}\n")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(f"Reseam SDK pinned: {current}; upstream latest: {tag}; new release line: {new_line}\n")
+          PY
+      - name: Open an issue when the engine release line advances
+        if: steps.engine.outputs.new_line == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LATEST: ${{ steps.engine.outputs.latest }}
+        run: |
+          TITLE="[Update watch] Reseam engine ${LATEST} needs a new bundle"
+          if ! gh issue list --state all --limit 100 --json title --jq '.[].title' | grep -Fxq "$TITLE"; then
+            gh issue create --title "$TITLE" --body "Reseam released ${LATEST}. Bump the SDK and CLI together, compile, build and sign a new bundle, and patch-test Smart Launcher 6.6 build 021 before publishing. Do not claim newer Smart Launcher app support without a target APK test. Source: https://git.reseam.app/reseam/reseam/releases"
+          fi
