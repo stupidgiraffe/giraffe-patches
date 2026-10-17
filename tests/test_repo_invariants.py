@@ -47,6 +47,16 @@ class TestRepoInvariants(unittest.TestCase):
         self.assertIn("6.6 build 021", readme)
         self.assertIn("Device-tested", readme)
 
+    def test_reseam_sdk_and_cli_versions_match(self):
+        settings = (ROOT / "settings.gradle.kts").read_text(encoding="utf-8")
+        version = re.search(r'id\("app\.reseam\.workspace"\) version "([0-9]+\.[0-9]+\.[0-9]+)"', settings)
+        self.assertIsNotNone(version)
+        cli = (ROOT / "scripts/install_reseam_cli.sh").read_text(encoding="utf-8")
+        self.assertIn(f'VERSION="v{version.group(1)}"', cli)
+        for workflow in ("validate.yml", "preview.yml", "release.yml"):
+            source = (ROOT / ".github/workflows" / workflow).read_text(encoding="utf-8")
+            self.assertIn(f"Install Reseam CLI {version.group(1)}", source)
+
     def test_no_proprietary_binary_in_tree(self):
         disallowed = {".apk", ".apkm", ".apks", ".xapk", ".key", ".p12", ".jks", ".reseam"}
         found = [str(p.relative_to(ROOT)) for p in ROOT.rglob("*") if p.is_file() and p.suffix.lower() in disallowed]

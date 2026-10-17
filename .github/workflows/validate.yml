@@ -24,7 +24,7 @@ jobs:
         run: |
           ! git ls-files | grep -E '\.(apk|apkm|apks|xapk|jks|keystore|pk8|der|p12|pfx|reseam)$'
   compile:
-    name: Reseam SDK compile (0.20.0)
+    name: Reseam SDK compile (0.26.0)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
         with:
           gradle-version: '8.14.3'
       - uses: dtolnay/rust-toolchain@stable
-      - name: Install Reseam CLI 0.20.0
+      - name: Install Reseam CLI 0.26.0
         run: bash scripts/install_reseam_cli.sh
       - name: Compile Smart Launcher patch module
         run: gradle :apps:smartlauncher:patch:classes --stacktrace

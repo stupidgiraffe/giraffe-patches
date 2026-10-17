@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   preview:
-    name: Signed preview (temporary test key)
+    name: Signed preview
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,15 +22,29 @@ jobs:
         with:
           gradle-version: '8.14.3'
       - uses: dtolnay/rust-toolchain@stable
-      - name: Install Reseam CLI 0.20.0
+      - name: Install Reseam CLI 0.26.0
         run: bash scripts/install_reseam_cli.sh
-      - name: Generate throwaway CI signing key
+      - name: Configure preview signing (use permanent key when available)
+        id: signer
+        env:
+          SIGNING_SEED: ${{ secrets.RESEAM_SIGNING_KEY_BASE64 }}
+          EXPECTED_PUBLIC_KEY: ${{ vars.RESEAM_PUBLIC_KEY_HEX }}
         run: |
           umask 077
           mkdir -p "$RUNNER_TEMP/giraffe-preview"
-          "$RESEAM_BIN" bundle keygen --out "$RUNNER_TEMP/giraffe-preview/signing.key"
+          if [[ -n "$SIGNING_SEED" ]]; then
+            test -n "$EXPECTED_PUBLIC_KEY" || { echo "Missing RESEAM_PUBLIC_KEY_HEX" >&2; exit 1; }
+            printf '%s' "$SIGNING_SEED" | base64 --decode > "$RUNNER_TEMP/giraffe-preview/signing.key"
+            test -s "$RUNNER_TEMP/giraffe-preview/signing.key"
+            echo "mode=permanent" >> "$GITHUB_OUTPUT"
+          else
+            "$RESEAM_BIN" bundle keygen --out "$RUNNER_TEMP/giraffe-preview/signing.key"
+            echo "mode=temporary" >> "$GITHUB_OUTPUT"
+          fi
           echo "RESEAM_BUNDLE_KEY=$RUNNER_TEMP/giraffe-preview/signing.key" >> "$GITHUB_ENV"
       - name: Build and verify preview bundle
+        env:
+          EXPECTED_PUBLIC_KEY: ${{ vars.RESEAM_PUBLIC_KEY_HEX }}
         run: |
           gradle bundle
           BUNDLE="build/reseam/giraffe-patches.reseam"
@@ -38,15 +52,18 @@ jobs:
           unzip -t "$BUNDLE"
           PUBKEY="$(unzip -p "$BUNDLE" manifest.pubkey | xxd -p -c 256)"
           test "${#PUBKEY}" -eq 64
+          if [[ "${{ steps.signer.outputs.mode }}" == "permanent" ]]; then
+            test "${PUBKEY,,}" == "${EXPECTED_PUBLIC_KEY,,}" || { echo "Signing key fingerprint mismatch" >&2; exit 1; }
+          fi
           "$RESEAM_BIN" bundle list "$BUNDLE" --trust "$PUBKEY"
           {
             echo '## Giraffe Patches preview build'
             echo
-            echo 'This bundle was compiled from source and signed with a **temporary CI key**. It has **not** been device-tested. Do not treat it as a stable public release.'
+            echo 'This bundle was compiled from source and signed with a **${{ steps.signer.outputs.mode }} key**. It has **not** been device-tested. Do not treat it as a stable public release.'
             echo
             echo "- Target: Smart Launcher **6.6 build 021 (660210)**"
             echo "- Bundle SHA-256: $(sha256sum "$BUNDLE" | cut -d' ' -f1)"
-            echo "- Temporary signer: \`$PUBKEY\`"
+            echo "- Public signer: \`$PUBKEY\`"
           } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:

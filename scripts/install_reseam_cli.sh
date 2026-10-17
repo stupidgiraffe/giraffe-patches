@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Install the matching Reseam CLI from the official upstream v0.20.0 release.
+# Install the matching Reseam CLI from the official upstream v0.26.0 release.
 # If no usable Linux binary is present, build the same pinned tag from source.
 set -euo pipefail
-VERSION="v0.20.0"
+VERSION="v0.26.0"
 DEST="${RUNNER_TEMP:-/tmp}/reseam-cli"
 mkdir -p "$DEST"
 if curl --fail --location --silent --show-error --retry 2 \

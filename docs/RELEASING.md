@@ -1,6 +1,6 @@
 # Signing and releasing
 
-A release means **both** a source build that produces a valid signed Reseam bundle **and** successful application/install on a real build-021 target. The working historical binary is a baseline only.
+A release means **both** a source build that produces a valid signed Reseam bundle **and** successful application/install on a real build-021 target. A toolchain upgrade alone is not an on-device test. The working historical binary is a baseline only.
 
 ## One-time setup
 
@@ -15,7 +15,7 @@ A release means **both** a source build that produces a valid signed Reseam bund
 
 ## GitHub workflow
 
-Use the manually triggered **Release** workflow on a committed, reviewed version after configuring the secret and variable. The workflow pins CLI and SDK to **0.20.0**, compiles, signs, inspects the bundle, emits `patches.json`, and attaches both to a GitHub release.
+Use the manually triggered **Release** workflow on a committed, reviewed version after configuring the secret and variable. The workflow pins CLI and SDK to **0.26.0**, compiles, signs, inspects the bundle, emits `patches.json`, and attaches both to a GitHub release.
 
 A release must not be triggered until the new key/bundle has been device-tested. **Do not force publication after a compilation failure.** Keep old release URLs immutable.
 
