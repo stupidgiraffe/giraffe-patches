@@ -36,6 +36,12 @@ Both are scoped to Smart Launcher `6.6 build 021`. **No Discord, YouTube, Instag
 
 ## 📦 Installation and automatic updates
 
+**Permanent bundle signing public key** (Ed25519; verify in Reseam Manager):
+
+`9b5228381bdce62d03e9df9654f02c9ceb9c06fd67722aa201a6c01cc989d89b`
+
+The private signing seed is backed up in APIVault and encrypted in GitHub Actions; it is never committed to this repository. The permanent-key build from CI was verified against this fingerprint, but still requires a fresh device patch/install test.
+
 **Reseam Manager update feed** (available after the first permanent-key stable release):
 
 `https://github.com/stupidgiraffe/giraffe-patches/releases/latest/download/patches.json`
