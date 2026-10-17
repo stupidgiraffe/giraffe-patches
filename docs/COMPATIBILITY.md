@@ -12,6 +12,16 @@
 | Smart Launcher builds 016–017 | **Not tested here** | Upstream [Morphe](https://github.com/hoo-dles/morphe-patches) may support earlier versions |
 | Anything after build 021 | **Unknown** | Do not assume obfuscated bytecode remains compatible |
 
+## Permanently signed CI candidate (device test pending)
+
+- Engine: **0.26.2**
+- Workflow: [signed preview run #39062693018](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/39062693018)
+- Bundle SHA-256: `0b80f0a205830db95e9056b2b789ac3e121342ef785e98c5155ca766ae503bb9`
+- Permanent Ed25519 public key: `9b5228381bdce62d03e9df9654f02c9ceb9c06fd67722aa201a6c01cc989d89b`
+- Signature and manifest: independently verified; CI completed with permanent-key fingerprint validation.
+- Local phone copy: `Download/giraffe-patches-permanent-key-test.reseam` (checksum matched).
+- **Status: build-validated, NOT yet patch/install/device-tested**. Do not release as stable on this evidence alone.
+
 ## Working on-device reference (not a reproducible release yet)
 
 A signed exploratory bundle **did patch the user's build-021 APKM successfully**. Its immutable reference values:
