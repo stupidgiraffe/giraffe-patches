@@ -1,15 +1,21 @@
-name: Release signed bundle (manual)
+name: Publish signed bundle and update feed
 
 on:
+  push:
+    tags: ['v*.*.*']
   workflow_dispatch:
     inputs:
       version:
-        description: "Reviewed version tag, e.g. v0.1.0 (must already be device-tested)"
+        description: "Approved release (vX.Y.Z); test the exact build before publishing"
         required: true
         type: string
 
 permissions:
   contents: write
+
+concurrency:
+  group: giraffe-patches-stable-release
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -17,11 +23,20 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
-      - name: Validate version
+      - name: Resolve and validate release version
         env:
-          VERSION: ${{ inputs.version }}
+          INPUT_VERSION: ${{ inputs.version }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+        shell: bash
         run: |
-          [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Expected vX.Y.Z"; exit 1; }
+          set -euo pipefail
+          VERSION="${INPUT_VERSION:-$REF_NAME}"
+          [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Expected vX.Y.Z" >&2; exit 1; }
+          if [[ "$EVENT_NAME" == "push" ]]; then
+            [[ "$GITHUB_REF" == "refs/tags/$VERSION" ]] || exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -32,43 +47,84 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Install Reseam CLI 0.26.2
         run: bash scripts/install_reseam_cli.sh
-      - name: Configure protected signing key
+      - name: Validate permanent signing configuration
         env:
           SIGNING_SEED: ${{ secrets.RESEAM_SIGNING_KEY_BASE64 }}
           PUBLIC_KEY: ${{ vars.RESEAM_PUBLIC_KEY_HEX }}
+        shell: bash
         run: |
-          test -n "$SIGNING_SEED" && test -n "$PUBLIC_KEY"
+          set -euo pipefail
+          test -n "$SIGNING_SEED" && test -n "$PUBLIC_KEY" || {
+            echo "Permanent signer not configured: set RESEAM_SIGNING_KEY_BASE64 (secret) and RESEAM_PUBLIC_KEY_HEX (variable)." >&2
+            exit 1
+          }
+          [[ "$PUBLIC_KEY" =~ ^[[:xdigit:]]{64}$ ]] || { echo "Invalid 64-character public key" >&2; exit 1; }
           umask 077
           mkdir -p "$RUNNER_TEMP/giraffe"
           printf '%s' "$SIGNING_SEED" | base64 --decode > "$RUNNER_TEMP/giraffe/signing.key"
           test -s "$RUNNER_TEMP/giraffe/signing.key"
-      - name: Build, inspect and stage release
-        env:
-          RESEAM_BIN: ${{ runner.temp }}/reseam-cli/reseam
-          RESEAM_BUNDLE_KEY: ${{ runner.temp }}/giraffe/signing.key
-          RESEAM_RELEASE_VERSION: ${{ inputs.version }}
-          RESEAM_BUNDLE_URL: https://github.com/stupidgiraffe/giraffe-patches/releases/download/${{ inputs.version }}/giraffe-patches.reseam
-          RESEAM_HOMEPAGE: https://github.com/stupidgiraffe/giraffe-patches
-          PUBLIC_KEY: ${{ vars.RESEAM_PUBLIC_KEY_HEX }}
-        run: |
-          gradle bundle
-          test -s build/reseam/giraffe-patches.reseam
-          unzip -t build/reseam/giraffe-patches.reseam
-          "$RESEAM_BIN" bundle list build/reseam/giraffe-patches.reseam --trust "$PUBLIC_KEY"
-          gradle stageRelease
-          test -s build/reseam/release/patches.json
-      - name: Publish immutable GitHub release
+          echo "RESEAM_BUNDLE_KEY=$RUNNER_TEMP/giraffe/signing.key" >> "$GITHUB_ENV"
+      - name: Check for an existing release and recover historical index
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ inputs.version }}
+        shell: bash
         run: |
-          test ! -z "$VERSION"
+          set -euo pipefail
+          mkdir -p build/reseam/release
           if gh release view "$VERSION" >/dev/null 2>&1; then
-            echo "Release already exists; refusing to overwrite" >&2
+            echo "Refusing to overwrite published release $VERSION" >&2
             exit 1
           fi
+          # Query API rather than treating all 'gh release view' failures as no previous release.
+          LATEST="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq '.tag_name' 2>"$RUNNER_TEMP/latest-error" || true)"
+          if [[ -n "$LATEST" ]]; then
+            gh release download "$LATEST" --pattern patches.json --dir build/reseam/release
+            test -s build/reseam/release/patches.json
+          elif ! grep -q 'HTTP 404' "$RUNNER_TEMP/latest-error"; then
+            echo "Cannot determine latest stable release; refusing to discard index history" >&2
+            cat "$RUNNER_TEMP/latest-error" >&2
+            exit 1
+          fi
+      - name: Build bundle, verify permanent signer, and extend update index
+        env:
+          PUBLIC_KEY: ${{ vars.RESEAM_PUBLIC_KEY_HEX }}
+          RESEAM_BIN: ${{ runner.temp }}/reseam-cli/reseam
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle bundle
+          BUNDLE="build/reseam/giraffe-patches.reseam"
+          INDEX="build/reseam/release/patches.json"
+          URL="https://github.com/$GITHUB_REPOSITORY/releases/download/$VERSION/giraffe-patches.reseam"
+          test -s "$BUNDLE"
+          unzip -t "$BUNDLE"
+          ACTUAL="$(unzip -p "$BUNDLE" manifest.pubkey | xxd -p -c 256)"
+          [[ "${ACTUAL,,}" == "${PUBLIC_KEY,,}" ]] || { echo "Signing key fingerprint mismatch" >&2; exit 1; }
+          "$RESEAM_BIN" bundle list "$BUNDLE" --trust "$PUBLIC_KEY"
+          "$RESEAM_BIN" publish patches "$BUNDLE" \
+            --version "$VERSION" \
+            --url "$URL" \
+            --homepage "https://github.com/$GITHUB_REPOSITORY" \
+            --description "Smart Launcher 6.6 build 021 (660210); tested compatibility requires separate device verification." \
+            --out "$INDEX"
+          jq -e --arg key "$PUBLIC_KEY" --arg ver "$VERSION" --arg url "$URL" '
+            .bundle.name == "giraffe-patches"
+            and (.bundle.public_key | ascii_downcase) == ($key | ascii_downcase)
+            and .releases[0].version == $ver
+            and .releases[0].download_url == $url
+            and (.releases | length) > 0
+          ' "$INDEX" >/dev/null
+          cp "$BUNDLE" build/reseam/release/giraffe-patches.reseam
+          echo "### Signed release ready" >> "$GITHUB_STEP_SUMMARY"
+          echo "Index: https://github.com/$GITHUB_REPOSITORY/releases/latest/download/patches.json" >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish immutable GitHub release with cumulative index
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
           gh release create "$VERSION" \
-            build/reseam/giraffe-patches.reseam \
+            build/reseam/release/giraffe-patches.reseam \
             build/reseam/release/patches.json \
-            --title "Giraffe Patches ${VERSION} — Smart Launcher build 021" \
-            --notes "Compatible target: Smart Launcher 6.6 build 021 (660210). Independently verify the published signing fingerprint. Device-tested release approval is required before running this workflow."
+            --title "Giraffe Patches $VERSION — Smart Launcher build 021" \
+            --notes "Reseam bundle for Smart Launcher 6.6 build 021 (660210). The cumulative patches.json update feed accompanies this release. It does not claim support for newer Smart Launcher versions."

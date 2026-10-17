@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://reseam.app/"><img src="https://img.shields.io/badge/Reseam-0.26.x-8c77ff?style=flat-square" alt="Reseam 0.20.x"></a>
+  <a href="https://reseam.app/"><img src="https://img.shields.io/badge/Reseam-0.26.x-8c77ff?style=flat-square" alt="Reseam 0.26.x"></a>
   <a href="https://www.gnu.org/licenses/gpl-3.0.html"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-45bfa3?style=flat-square" alt="GPL-3.0-or-later"></a>
   <a href="https://github.com/stupidgiraffe/giraffe-patches/actions/workflows/validate.yml"><img src="https://github.com/stupidgiraffe/giraffe-patches/actions/workflows/validate.yml/badge.svg" alt="Validation workflow"></a>
   <a href="https://buymeacoffee.com/stupidgiraffe"><img src="https://img.shields.io/badge/Support-Buy%20Me%20a%20Coffee-f6c960?style=flat-square" alt="Buy Me a Coffee"></a>
@@ -34,14 +34,20 @@ Independent community project · Not affiliated with Reseam, Smart Launcher, or 
 
 Both are scoped to Smart Launcher `6.6 build 021`. **No Discord, YouTube, Instagram, or unrelated patches are included.** Existing patches shown as *skipped* in Reseam belong to other installed bundles.
 
-## 📦 Installation
+## 📦 Installation and automatic updates
+
+**Reseam Manager update feed** (available after the first permanent-key stable release):
+
+`https://github.com/stupidgiraffe/giraffe-patches/releases/latest/download/patches.json`
+
+Once the first stable release is published, add that **URL as a bundle source in Reseam Manager**, rather than importing a local `.reseam` file. Manager checks the index and installs new releases signed with the same trusted key. The URL returns 404 until the first stable release; the development preview artifacts are not an update source.
 
 1. Obtain **Smart Launcher 6.6 build 021** from your own trusted source; keep an unmodified backup.
-2. Open [Reseam Manager](https://reseam.app/) and import a **signed `.reseam` bundle** from this repository's **[Releases](https://github.com/stupidgiraffe/giraffe-patches/releases)** page, once a public release is posted.
+2. Open [Reseam Manager](https://reseam.app/) and, after the first stable release, **add the update feed URL above**. A manual `.reseam` import cannot receive updates.
 3. Review and trust the bundle **public signing key**. Enable **Enable Pro** and its Smart Launcher dependency; disable unrelated universal patches during troubleshooting.
 4. Patch your original APKM/APK. Install the resulting package and verify on your device.
 
-**Release status:** CI builds a bundle for the current Reseam engine, and a **signed preview build** can be downloaded from the [latest successful Preview workflow](https://github.com/stupidgiraffe/giraffe-patches/actions/workflows/preview.yml) (open a run → **Artifacts** → `giraffe-patches-preview-reseam` → extract the single `.reseam` file). The preview uses the permanent signing key if configured in GitHub Actions, otherwise a temporary CI signer; this exact new bundle has **not yet been tested on-device**. The previously working signed test bundle's provenance is recorded in [Compatibility & provenance](docs/COMPATIBILITY.md). Stable downloads will appear on [Releases](https://github.com/stupidgiraffe/giraffe-patches/releases) only after a permanent signing key and real device verification.
+**Release status:** CI builds a bundle for the current Reseam engine, and a **signed preview build** can be downloaded from the [latest successful Preview workflow](https://github.com/stupidgiraffe/giraffe-patches/actions/workflows/preview.yml) (open a run → **Artifacts** → `giraffe-patches-preview-reseam` → extract the single `.reseam` file). The preview uses the permanent signing key if configured in GitHub Actions, otherwise a temporary CI signer; this exact new bundle has **not yet been tested on-device**. The previously working signed test bundle's provenance is recorded in [Compatibility & provenance](docs/COMPATIBILITY.md). Stable downloads and the live update feed will appear on [Releases](https://github.com/stupidgiraffe/giraffe-patches/releases) only after configuring the permanent signing seed and real device verification. GitHub Actions checks upstream Reseam daily and opens review PRs for future engine changes; it cannot safely self-release untested patches.
 
 > Reseam bundles contain patches, **not APKs**. We never distribute proprietary Smart Launcher packages, patched app APKs, private signing keys, or user data.
 
