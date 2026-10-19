@@ -73,7 +73,7 @@ Read the [compatibility record](docs/COMPATIBILITY.md), [build guide](docs/BUILD
 
 The source lives in `apps/smartlauncher/patch/` and uses the official [Reseam patch SDK](https://reseam.app/docs/engine/bundles/). The workspace plugin and matching CLI are pinned to `0.26.2`. The historical device-tested bundle used 0.20.0. Run `gradle bundle` with the matching Reseam CLI, Android SDK, and a private signing key; see [BUILD.md](docs/BUILD.md) for exact requirements.
 
-We keep the compatibility matcher tied to **the premium-access-change owner class**, not an ambiguous `"lifetime"` string that matches two classes in build 021. That correction is the main difference from the unsuccessful early port.
+Smart Launcher build 021 contains multiple initializers with the `"lifetime"` string and 11 classes containing the premium-access broadcast string. To fail closed instead of matching unrelated code, the patch now resolves the **verified build-021 purchase-items owner** by exact descriptor and still constrains its initializer. Future Smart Launcher builds require separate analysis.
 
 ## 🙌 Credits & licensing
 

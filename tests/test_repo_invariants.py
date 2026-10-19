@@ -23,7 +23,7 @@ class TestRepoInvariants(unittest.TestCase):
         self.assertNotRegex(self.source, r'compatibleWith\(.+build 016')
 
     def test_ambiguous_match_is_class_scoped(self):
-        self.assertRegex(self.source, r'purchaseItemsClass\s*=\s*klass')
+        self.assertRegex(self.source, r'purchaseItemsClass\s*=\s*classTarget')
         self.assertIn('strings("ginlemon.action.hasPremiumAccessChanged")', self.source)
         initializer = re.search(
             r'purchaseItemsCtor\s*=\s*method\([\s\S]*?\n}', self.source
@@ -33,7 +33,8 @@ class TestRepoInvariants(unittest.TestCase):
         self.assertIn('name("<clinit>")', initializer.group())
         self.assertNotIn("first()", initializer.group())
         self.assertIn("flags(AccessFlags.STATIC or AccessFlags.CONSTRUCTOR)", initializer.group())
-        self.assertNotIn("Lmn8;", initializer.group())
+        self.assertIn('bytecode.findClass("Lmn8;")', self.source)
+        self.assertNotIn('klass("Smart Launcher purchase-items owner")', self.source)
 
     def test_patch_dependency(self):
         self.assertIn("val disableSmartLauncherSignatureCheck = patch", self.source)

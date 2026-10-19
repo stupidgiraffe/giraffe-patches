@@ -12,6 +12,12 @@
 | Smart Launcher builds 016–017 | **Not tested here** | Upstream [Morphe](https://github.com/hoo-dles/morphe-patches) may support earlier versions |
 | Anything after build 021 | **Unknown** | Do not assume obfuscated bytecode remains compatible |
 
+## 0.26.4 device regression found on October 19, 2026
+
+The permanently signed 0.26.2 SDK preview (`0b80f0a205830db95e9056b2b789ac3e121342ef785e98c5155ca766ae503bb9`) was imported into Reseam Manager 0.22.3, engine 0.26.4, on the Android 16 tester phone. A fresh **Patch again** failed with `11 classs matched 'Smart Launcher purchase-items owner'`. The old `klass { strings("ginlemon.action.hasPremiumAccessChanged") }` query matches any class containing the event string, including numerous receivers and activities. No install was attempted and the working installation was preserved.
+
+**Candidate fix:** resolve the verified owner `Lmn8;` from the version-pinned 6.6 build 021 APK rather than ambiguously searching across unrelated classes. This is deliberately build-specific and must be re-tested before stable publication. Do not claim this candidate fixes patch/install until runtime verification succeeds.
+
 ## Permanently signed CI candidate (device test pending)
 
 - Engine: **0.26.2**
