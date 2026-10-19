@@ -75,15 +75,18 @@ jobs:
             echo "Refusing to overwrite published release $VERSION" >&2
             exit 1
           fi
-          # Query API rather than treating all 'gh release view' failures as no previous release.
-          LATEST="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq '.tag_name' 2>"$RUNNER_TEMP/latest-error" || true)"
+          # The releases list returns [] for a fresh repository, without a 404.
+          # Unlike /releases/latest, this also propagates auth/network errors.
+          LATEST="$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+            --jq '[.[] | select(.draft == false and .prerelease == false)][0].tag_name // empty')"
           if [[ -n "$LATEST" ]]; then
             gh release download "$LATEST" --pattern patches.json --dir build/reseam/release
-            test -s build/reseam/release/patches.json
-          elif ! grep -q 'HTTP 404' "$RUNNER_TEMP/latest-error"; then
-            echo "Cannot determine latest stable release; refusing to discard index history" >&2
-            cat "$RUNNER_TEMP/latest-error" >&2
-            exit 1
+            test -s build/reseam/release/patches.json || {
+              echo "The previous stable release is missing patches.json; refusing to lose update history" >&2
+              exit 1
+            }
+          else
+            echo "First stable release: starting a new signed update index."
           fi
       - name: Build bundle, verify permanent signer, and extend update index
         env:
@@ -127,4 +130,4 @@ jobs:
             build/reseam/release/giraffe-patches.reseam \
             build/reseam/release/patches.json \
             --title "Giraffe Patches $VERSION — Smart Launcher build 021" \
-            --notes "Reseam bundle for Smart Launcher 6.6 build 021 (660210). The cumulative patches.json update feed accompanies this release. It does not claim support for newer Smart Launcher versions."
+            --notes "Reseam patch bundle for Smart Launcher 6.6 build 021 (660210). Patch generation was verified on Android 16 with Reseam Manager engine 0.26.4; installation and launch of this new build were not tested. Includes a cumulative patches.json update feed. No support for newer Smart Launcher versions is claimed."
