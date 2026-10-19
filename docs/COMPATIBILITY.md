@@ -16,7 +16,9 @@
 
 The permanently signed 0.26.2 SDK preview (`0b80f0a205830db95e9056b2b789ac3e121342ef785e98c5155ca766ae503bb9`) was imported into Reseam Manager 0.22.3, engine 0.26.4, on the Android 16 tester phone. A fresh **Patch again** failed with `11 classs matched 'Smart Launcher purchase-items owner'`. The old `klass { strings("ginlemon.action.hasPremiumAccessChanged") }` query matches any class containing the event string, including numerous receivers and activities. No install was attempted and the working installation was preserved.
 
-**Candidate fix:** resolve the verified owner `Lmn8;` from the version-pinned 6.6 build 021 APK rather than ambiguously searching across unrelated classes. This is deliberately build-specific and must be re-tested before stable publication. Do not claim this candidate fixes patch/install until runtime verification succeeds.
+**Verified patch-stage fix:** PR [#5](https://github.com/stupidgiraffe/giraffe-patches/pull/5) resolves the verified `Lmn8;` owner from the version-pinned APK. CI compiled the updated patch, and the permanently signed bundle (SHA-256 `6fe4d630d52336172b9bfceb5786934a1d4eceb5a93a52f5e0b0d7700c7b9903`) was imported on the Android 16 tester. **Patch again succeeded:** Manager wrote a new `base.apk` on 2026-10-19 06:14:42 UTC and recorded `Enable Pro` in `patched.json`. This is a **patch-stage test only**; the new APK was NOT installed or launched. The old installation and a local 21 MB rollback copy were preserved.
+
+**Additional limitation:** on the next Manager app startup, the locally imported Giraffe bundles disappeared from `bundles.json` and Manager showed an outdated/removed-source warning. Automatic updates and stable publication require proving the network source works and completing device install/launch verification.
 
 ## Permanently signed CI candidate (device test pending)
 
