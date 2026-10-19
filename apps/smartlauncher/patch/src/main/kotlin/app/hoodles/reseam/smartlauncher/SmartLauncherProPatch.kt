@@ -43,13 +43,15 @@ val disableSmartLauncherSignatureCheck = patch {
     }
 }
 
-// Build 021 contains TWO static initializers that mention "lifetime".
-// Lhn8 is an unrelated enum initializer; Lmn8 owns the purchasable items.
-// The obfuscated descriptors are NOT safe to bake into the shipped matcher.
-// Instead locate the class that broadcasts the premium-access-changed event,
-// then search for its constructor. This prevents the original ambiguous match.
-private val purchaseItemsClass = klass("Smart Launcher purchase-items owner") {
-    strings("ginlemon.action.hasPremiumAccessChanged")
+// Build 021 contains TWO static initializers mentioning "lifetime".
+// Lhn8 is unrelated; the verified purchase-items owner is Lmn8.
+// A class-level search for "ginlemon.action.hasPremiumAccessChanged" matched
+// ELEVEN classes under Reseam 0.26.x and failed before patching. Prefer the
+// exact descriptor verified against 6.6 build 021 to a broad unsafe matcher.
+// This patch advertises only that build. Other builds must be re-verified.
+private val purchaseItemsClass = classTarget("Smart Launcher purchase-items owner") {
+    bytecode.findClass("Lmn8;")
+        ?: error("Smart Launcher 6.6 build 021: verified purchase-items owner Lmn8; not found")
 }
 
 private val purchaseItemsCtor = method("Smart Launcher purchase-items initializer") {
