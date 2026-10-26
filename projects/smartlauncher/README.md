@@ -12,6 +12,8 @@ Compatibility was established from the *actual uploaded APK*, not its filename:
 - `Li89;.a(Li89;,Context,boolean)V` contains the premium access changed broadcast string, and the Smart Launcher signature warning method still calls `System.exit(int)`. The unmodified patch flow therefore has verified corresponding targets.
 - The global public/static zero-arg `Lginlemon/flower/App;` return signature was found in the APK.
 
+Patch-stage acceptance (2026-10-26): ReSeam CLI 0.31.0 loaded the permanently signed `giraffe-smartlauncher` bundle and applied `Enable Pro` plus its dependency to the developer's direct APK, which had SHA-256 `de80631a4b305c9ae46ea86195085a36cdf21371cc092801ef36b549b2586b5b`—identical to the owner's uploaded APK. The engine reported 1 applied, 1 dependency, 0 skipped and 0 failed, and produced a patched APK. Successful on-device import/install remains unproven. Evidence: [manual run 40309922742](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/40309922742). This build uses a separate bundle name to avoid possible Manager conflicts with legacy `giraffe-patches`; the conflict is a hypothesis, not a proven root cause.
+
 The patch registers **Enable Pro** with the internal **Disable Smart Launcher signature check** dependency. Build/version checking and signer verification do **not** establish that a patched build installs/launches correctly on a particular phone. User acceptance is required before marking build 024 device-tested.
 
 To build, manually dispatch `.github/workflows/smartlauncher-manual.yml`, download artifact `giraffe-smartlauncher-b024-reseam-0.31.0`, extract the `.reseam`, and import it directly into ReSeam Manager. No APKs or signing secrets are committed.
