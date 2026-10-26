@@ -1,6 +1,6 @@
 # Smart Launcher 6.6 build 024 — ReSeam 0.31.0
 
-This isolated project compiles a **Smart Launcher 6.6 build 024 (660240)** patch against ReSeam 0.31.0. It reuses the existing bundle ID `giraffe-patches`, signing identity, and manual workflow.
+This isolated project compiles a **Smart Launcher 6.6 build 024 (660240)** patch against ReSeam 0.31.0. It uses a distinct bundle ID `giraffe-smartlauncher` (separate from the legacy `giraffe-patches` build-021 bundle), while retaining the permanent Ed25519 signing identity and manual-only workflow. This avoids possible Manager cache/identity collisions when both versions are imported.
 
 Compatibility was established from the *actual uploaded APK*, not its filename:
 - Package `ginlemon.flowerfree`
