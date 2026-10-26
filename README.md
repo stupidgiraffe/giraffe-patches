@@ -1,3 +1,5 @@
+> **New build-validated bundle:** Smart Launcher **6.6 build 024 (660240)** for ReSeam **0.31.0** is maintained in [`projects/smartlauncher`](projects/smartlauncher/README.md), with a manual-only signed build workflow. It has been bytecode-inspected and compiled, but needs a device patch/install check. Historical build 021 remains the last user-reported working target; root `apps/smartlauncher` is the legacy 021 source.
+
 <p align="center">
   <img src="assets/giraffe-patches-banner.svg" alt="Giraffe Patches — independent Android patches for Reseam" width="100%">
 </p>

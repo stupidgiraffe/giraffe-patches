@@ -63,6 +63,7 @@ jobs:
           unzip -t "$BUNDLE"
           unzip -p "$BUNDLE" manifest.toml | grep -Fx 'engine = "0.31.0"'
           unzip -p "$BUNDLE" manifest.toml | grep -F 'versions = ["6.6 build 024"]'
+          unzip -p "$BUNDLE" manifest.toml | grep -F 'verified source target 6.6 build 024'
           ACTUAL="$(unzip -p "$BUNDLE" manifest.pubkey | xxd -p -c 256)"
           test "$ACTUAL" = "$EXPECTED" || { echo "Signing key mismatch" >&2; exit 1; }
           "$RESEAM_BIN" bundle list "$BUNDLE" --trust "$EXPECTED" --verbose

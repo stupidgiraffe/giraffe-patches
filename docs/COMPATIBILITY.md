@@ -1,5 +1,11 @@
 # Compatibility and tested provenance
 
+## Smart Launcher build 024, ReSeam 0.31.0 (2026-10-26)
+
+Uploaded APK was inspected directly, not identified from filename: package `ginlemon.flowerfree`, version code `660240`, version name `6.6 build 024`, SHA-256 `de80631a4b305c9ae46ea86195085a36cdf21371cc092801ef36b549b2586b5b`. The premium purchase-items owner was reverified as `Li89;`, with its `lifetime` item in `Li89;.c:Lmm8;` and its premium-state broadcaster. The old `Lmn8;` descriptor in build 024 is **unrelated** and must not be reused. A version-pinned isolated ReSeam 0.31.0 Kotlin workspace lives in `projects/smartlauncher`, built only by the manual Smart Launcher workflow. **Compilation and signed manifest inspection are not a full patch/install runtime test**. Preserve working build 021 until accepted.
+
+
+
 **Current device-tested target:** Smart Launcher **6.6 build 021**, Android package `ginlemon.flowerfree`, version code `660210`.
 
 **Current source toolchain:** Reseam SDK and CLI **0.26.2**. The previous successful phone test used a **0.20.0** bundle; a newly built 0.26.2 bundle still needs an on-device retest.
