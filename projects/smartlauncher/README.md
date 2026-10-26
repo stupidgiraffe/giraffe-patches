@@ -1,6 +1,6 @@
 # Smart Launcher 6.6 build 024 — ReSeam 0.31.0
 
-This isolated project compiles a **Smart Launcher 6.6 build 024 (660240)** patch against ReSeam 0.31.0. It reuses the existing bundle ID `giraffe-patches`, signing identity, and manual workflow.
+This isolated project compiles a **Smart Launcher 6.6 build 024 (660240)** patch against ReSeam 0.31.0. It uses a distinct bundle ID `giraffe-smartlauncher` (separate from the legacy `giraffe-patches` build-021 bundle), while retaining the permanent Ed25519 signing identity and manual-only workflow. This avoids possible Manager cache/identity collisions when both versions are imported.
 
 Compatibility was established from the *actual uploaded APK*, not its filename:
 - Package `ginlemon.flowerfree`
@@ -11,6 +11,8 @@ Compatibility was established from the *actual uploaded APK*, not its filename:
 - `Li89;-><clinit>()V` holds the `lifetime` item assigned to field `Li89;.c:Lmm8;`; `Lmm8;` has the matching no-arg boolean getter and Context/boolean setter.
 - `Li89;.a(Li89;,Context,boolean)V` contains the premium access changed broadcast string, and the Smart Launcher signature warning method still calls `System.exit(int)`. The unmodified patch flow therefore has verified corresponding targets.
 - The global public/static zero-arg `Lginlemon/flower/App;` return signature was found in the APK.
+
+Patch-stage acceptance (2026-10-26): ReSeam CLI 0.31.0 loaded the permanently signed `giraffe-smartlauncher` bundle and applied `Enable Pro` plus its dependency to the developer's direct APK, which had SHA-256 `de80631a4b305c9ae46ea86195085a36cdf21371cc092801ef36b549b2586b5b`—identical to the owner's uploaded APK. The engine reported 1 applied, 1 dependency, 0 skipped and 0 failed, and produced a patched APK. Successful on-device import/install remains unproven. Evidence: [manual run 40309922742](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/40309922742). This build uses a separate bundle name to avoid possible Manager conflicts with legacy `giraffe-patches`; the conflict is a hypothesis, not a proven root cause.
 
 The patch registers **Enable Pro** with the internal **Disable Smart Launcher signature check** dependency. Build/version checking and signer verification do **not** establish that a patched build installs/launches correctly on a particular phone. User acceptance is required before marking build 024 device-tested.
 

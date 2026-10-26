@@ -52,13 +52,13 @@ jobs:
         run: |
           set -euo pipefail
           gradle --no-daemon --console=plain bundle
-          test -s build/reseam/giraffe-patches.reseam
+          test -s build/reseam/giraffe-smartlauncher.reseam
 
       - name: Verify 0.31.0 archive, signer and patch catalog
         working-directory: projects/smartlauncher
         run: |
           set -euo pipefail
-          BUNDLE="build/reseam/giraffe-patches.reseam"
+          BUNDLE="build/reseam/giraffe-smartlauncher.reseam"
           EXPECTED="9b5228381bdce62d03e9df9654f02c9ceb9c06fd67722aa201a6c01cc989d89b"
           unzip -t "$BUNDLE"
           unzip -p "$BUNDLE" manifest.toml | grep -Fx 'engine = "0.31.0"'
@@ -70,9 +70,55 @@ jobs:
           "$RESEAM_BIN" bundle list "$BUNDLE" --json | grep -F '"Enable Pro"'
           sha256sum "$BUNDLE"
 
+      - name: Test real patching with publisher APK when target matches
+        working-directory: projects/smartlauncher
+        env:
+          RESEAM_JVM_HEAP: 1g
+        run: |
+          set -uo pipefail
+          BUNDLE="build/reseam/giraffe-smartlauncher.reseam"
+          APK="$RUNNER_TEMP/SmartLauncher_latest.apk"
+          REPORT="$RUNNER_TEMP/smartlauncher-validation.txt"
+          echo "Official Smart Launcher direct download, not bundled or published." > "$REPORT"
+          if ! curl --fail --location --retry 2 --connect-timeout 20 --max-time 130 \
+            "https://sl-builds.nyc3.cdn.digitaloceanspaces.com/sl-releases/SmartLauncher_latest.apk" \
+            --output "$APK" 2>> "$REPORT"; then
+            echo "APK_DOWNLOAD_UNAVAILABLE: no patch-stage result" | tee -a "$REPORT"
+          else
+            sha256sum "$APK" | tee -a "$REPORT"
+            "$RESEAM_BIN" info "$APK" > "$RUNNER_TEMP/app-info.txt" 2>&1
+            cat "$RUNNER_TEMP/app-info.txt" | tee -a "$REPORT"
+            if grep -Fq 'version:    6.6 build 024' "$RUNNER_TEMP/app-info.txt"; then
+              echo "TARGET_MATCH: executing real patch-stage test" | tee -a "$REPORT"
+              "$RESEAM_BIN" patch "$APK" --bundle "$BUNDLE" \
+                --trust "9b5228381bdce62d03e9df9654f02c9ceb9c06fd67722aa201a6c01cc989d89b" \
+                --enable "Enable Pro" \
+                --output "$RUNNER_TEMP/patched.apk" > "$RUNNER_TEMP/patch-log.txt" 2>&1
+              STATUS=$?
+              tail -90 "$RUNNER_TEMP/patch-log.txt" | tee -a "$REPORT"
+              if [ "$STATUS" -eq 0 ]; then
+                echo "PATCH_STAGE_RESULT=PASSED" | tee -a "$REPORT"
+              else
+                echo "PATCH_STAGE_RESULT=FAILED exit=$STATUS (bundle NOT validated)" | tee -a "$REPORT"
+              fi
+              rm -f "$RUNNER_TEMP/patched.apk" "$RUNNER_TEMP/patched.pk8" "$RUNNER_TEMP/patched.der"
+            else
+              echo "APK_VERSION_MISMATCH: cannot claim full patch-stage validation for build 024." | tee -a "$REPORT"
+            fi
+            rm -f "$APK"
+          fi
+          cp "$REPORT" validation-report.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartlauncher-validation-report-0.31.0
+          path: projects/smartlauncher/validation-report.txt
+          retention-days: 7
+          if-no-files-found: error
+
       - uses: actions/upload-artifact@v4
         with:
           name: giraffe-smartlauncher-b024-reseam-0.31.0
-          path: projects/smartlauncher/build/reseam/giraffe-patches.reseam
+          path: projects/smartlauncher/build/reseam/giraffe-smartlauncher.reseam
           retention-days: 7
           if-no-files-found: error
