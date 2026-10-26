@@ -62,7 +62,7 @@ jobs:
           EXPECTED="9b5228381bdce62d03e9df9654f02c9ceb9c06fd67722aa201a6c01cc989d89b"
           unzip -t "$BUNDLE"
           unzip -p "$BUNDLE" manifest.toml | grep -Fx 'engine = "0.31.0"'
-          unzip -p "$BUNDLE" manifest.toml | grep -F 'versions = ["6.6 build 021"]'
+          unzip -p "$BUNDLE" manifest.toml | grep -F 'versions = ["6.6 build 024"]'
           ACTUAL="$(unzip -p "$BUNDLE" manifest.pubkey | xxd -p -c 256)"
           test "$ACTUAL" = "$EXPECTED" || { echo "Signing key mismatch" >&2; exit 1; }
           "$RESEAM_BIN" bundle list "$BUNDLE" --trust "$EXPECTED" --verbose
@@ -71,7 +71,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: giraffe-smartlauncher-reseam-0.31.0
+          name: giraffe-smartlauncher-b024-reseam-0.31.0
           path: projects/smartlauncher/build/reseam/giraffe-patches.reseam
           retention-days: 7
           if-no-files-found: error

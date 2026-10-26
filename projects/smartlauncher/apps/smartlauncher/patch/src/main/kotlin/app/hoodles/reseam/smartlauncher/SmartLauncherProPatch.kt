@@ -15,7 +15,7 @@ import app.reseam.patch.dex.AccessFlags
 import app.reseam.patch.dex.Opcode
 import app.reseam.patch.types.FieldRef
 
-private val SMART_LAUNCHER = "ginlemon.flowerfree"("6.6 build 021")
+private val SMART_LAUNCHER = "ginlemon.flowerfree"("6.6 build 024")
 
 private val signatureCheckMethod = method("Smart Launcher signature check") {
     strings("Not genuine apk. This may not stop humans but may stop machines.")
@@ -43,15 +43,18 @@ val disableSmartLauncherSignatureCheck = patch {
     }
 }
 
-// Build 021 contains TWO static initializers mentioning "lifetime".
-// Lhn8 is unrelated; the verified purchase-items owner is Lmn8.
-// A class-level search for "ginlemon.action.hasPremiumAccessChanged" matched
-// ELEVEN classes under Reseam 0.26.x and failed before patching. Prefer the
-// exact descriptor verified against 6.6 build 021 to a broad unsafe matcher.
-// This patch advertises only that build. Other builds must be re-verified.
+// Verified against supplied original Smart Launcher 6.6 build 024 (660240) APK.
+// APK SHA256: de80631a4b305c9ae46ea86195085a36cdf21371cc092801ef36b549b2586b5b
+// The purchase-items owner moved from Lmn8; in build 021 to Li89; in build 024.
+// Li89;-><clinit>()V contains the unique purchase item "lifetime" marker,
+// followed by Lmm8; construction and the SPUT_OBJECT Li89;.c field write.
+// Li89;.a(Li89;,Context,boolean)V broadcasts the existing premium state event.
+// Lmm8;.b():boolean is the getter; Lmm8;.a(Context,boolean):void is setter.
+// The unrelated Lmn8; class still exists in 024; do not use it for this build.
+// Matchers remain exactly version-scoped; other builds require new APK analysis.
 private val purchaseItemsClass = classTarget("Smart Launcher purchase-items owner") {
-    bytecode.findClass("Lmn8;")
-        ?: error("Smart Launcher 6.6 build 021: verified purchase-items owner Lmn8; not found")
+    bytecode.findClass("Li89;")
+        ?: error("Smart Launcher 6.6 build 024: verified purchase-items owner Li89; not found")
 }
 
 private val purchaseItemsCtor = method("Smart Launcher purchase-items initializer") {

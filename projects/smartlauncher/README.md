@@ -1,9 +1,19 @@
-# Smart Launcher Reseam 0.31.0 — manual build
+# Smart Launcher 6.6 build 024 — ReSeam 0.31.0
 
-Isolated, reproducible Reseam 0.31.0 bundle build using the **same patch source** as the working Smart Launcher 6.6 build 021 (660210) patch. The bundle retains the existing `giraffe-patches` identity and permanent Ed25519 signing key. It includes `Enable Pro` with the internal signature-check dependency.
+This isolated project compiles a **Smart Launcher 6.6 build 024 (660240)** patch against ReSeam 0.31.0. It reuses the existing bundle ID `giraffe-patches`, signing identity, and manual workflow.
 
-**Supported app version: build 021 only.** The developer released Smart Launcher 6.6 build 024 around October 23, 2026, but its bytecode and patch compatibility are not yet verified. Do not add build 024 to compatibleWith until the official/verified APK is inspected and patch-stage behavior is tested. The build-021 purchase-items owner `Lmn8;` is obfuscated and is not safe to assume for 024.
+Compatibility was established from the *actual uploaded APK*, not its filename:
+- Package `ginlemon.flowerfree`
+- Version name `6.6 build 024`, version code `660240`
+- APK SHA-256 `de80631a4b305c9ae46ea86195085a36cdf21371cc092801ef36b549b2586b5b`
+- APK contents: `classes.dex`, `classes2.dex`, `classes3.dex`; ZIP integrity passed.
+- Purchase-items owner moved from `Lmn8;` (build 021) to **`Li89;`** (build 024). In 024, `Lmn8;` still exists but is unrelated, so retaining the old hardcoded class would be wrong.
+- `Li89;-><clinit>()V` holds the `lifetime` item assigned to field `Li89;.c:Lmm8;`; `Lmm8;` has the matching no-arg boolean getter and Context/boolean setter.
+- `Li89;.a(Li89;,Context,boolean)V` contains the premium access changed broadcast string, and the Smart Launcher signature warning method still calls `System.exit(int)`. The unmodified patch flow therefore has verified corresponding targets.
+- The global public/static zero-arg `Lginlemon/flower/App;` return signature was found in the APK.
 
-Build: trigger the new manual-only workflow `.github/workflows/smartlauncher-manual.yml`; download the artifact, extract `giraffe-patches.reseam`, and import it directly into Manager. This standalone subproject intentionally does not use the root repository's old 0.26.2 toolchain.
+The patch registers **Enable Pro** with the internal **Disable Smart Launcher signature check** dependency. Build/version checking and signer verification do **not** establish that a patched build installs/launches correctly on a particular phone. User acceptance is required before marking build 024 device-tested.
 
-Compilation, manifest, signature and patch registration checks are *not* an on-device patch/install test. The user reports existing Smart Launcher patches working; this particular 0.31.0 archive has to be tested separately on a target APK.
+To build, manually dispatch `.github/workflows/smartlauncher-manual.yml`, download artifact `giraffe-smartlauncher-b024-reseam-0.31.0`, extract the `.reseam`, and import it directly into ReSeam Manager. No APKs or signing secrets are committed.
+
+**Historical build 021:** The verified older source remains in `apps/smartlauncher/patch/` and in Git history, and the October 26 signed ReSeam 0.31.0 artifact is in successful run [40301721159](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/40301721159). Do not claim this build 024 source supports 021; different obfuscated owner classes require different version-scoped builds.
