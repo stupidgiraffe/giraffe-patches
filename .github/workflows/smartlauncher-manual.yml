@@ -52,13 +52,13 @@ jobs:
         run: |
           set -euo pipefail
           gradle --no-daemon --console=plain bundle
-          test -s build/reseam/giraffe-patches.reseam
+          test -s build/reseam/giraffe-smartlauncher.reseam
 
       - name: Verify 0.31.0 archive, signer and patch catalog
         working-directory: projects/smartlauncher
         run: |
           set -euo pipefail
-          BUNDLE="build/reseam/giraffe-patches.reseam"
+          BUNDLE="build/reseam/giraffe-smartlauncher.reseam"
           EXPECTED="9b5228381bdce62d03e9df9654f02c9ceb9c06fd67722aa201a6c01cc989d89b"
           unzip -t "$BUNDLE"
           unzip -p "$BUNDLE" manifest.toml | grep -Fx 'engine = "0.31.0"'
@@ -76,7 +76,7 @@ jobs:
           RESEAM_JVM_HEAP: 1g
         run: |
           set -uo pipefail
-          BUNDLE="build/reseam/giraffe-patches.reseam"
+          BUNDLE="build/reseam/giraffe-smartlauncher.reseam"
           APK="$RUNNER_TEMP/SmartLauncher_latest.apk"
           REPORT="$RUNNER_TEMP/smartlauncher-validation.txt"
           echo "Official Smart Launcher direct download, not bundled or published." > "$REPORT"
@@ -119,6 +119,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: giraffe-smartlauncher-b024-reseam-0.31.0
-          path: projects/smartlauncher/build/reseam/giraffe-patches.reseam
+          path: projects/smartlauncher/build/reseam/giraffe-smartlauncher.reseam
           retention-days: 7
           if-no-files-found: error
