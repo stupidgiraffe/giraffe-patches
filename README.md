@@ -1,4 +1,6 @@
-> **New build-validated bundle:** Smart Launcher **6.6 build 024 (660240)** for ReSeam **0.31.0** is maintained in [`projects/smartlauncher`](projects/smartlauncher/README.md), with a manual-only signed build workflow. It has been bytecode-inspected and compiled, but needs a device patch/install check. Historical build 021 remains the last user-reported working target; root `apps/smartlauncher` is the legacy 021 source.
+> **Current manually built bundles:** Smart Launcher **6.6 build 024 (660240)** and Icon Pack Studio **2.5 build 001 (250010)** for ReSeam Manager **0.32.0** (engine 0.32.0). Smart Launcher passed CLI patch-stage verification on 2026-10-29; Icon Pack Studio passed compilation, signer, and manifest checks but still needs APK patch-stage and device checks. Previously verified 0.31.0 artifacts remain historical. See `projects/smartlauncher` and `projects/iconpackstudio` for the isolated, manual-only projects.
+
+> **Historical note:** Smart Launcher **6.6 build 024 (660240)** for ReSeam **0.31.0** is maintained in [`projects/smartlauncher`](projects/smartlauncher/README.md), with a manual-only signed build workflow. It has been bytecode-inspected and compiled, but needs a device patch/install check. Historical build 021 remains the last user-reported working target; root `apps/smartlauncher` is the legacy 021 source.
 
 <p align="center">
   <img src="assets/giraffe-patches-banner.svg" alt="Giraffe Patches — independent Android patches for Reseam" width="100%">
