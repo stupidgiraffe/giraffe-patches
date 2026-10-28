@@ -113,6 +113,27 @@ jobs:
               tail -90 "$RUNNER_TEMP/patch-log.txt" | tee -a "$REPORT"
               if [ "$STATUS" -eq 0 ]; then
                 echo "PATCH_STAGE_RESULT=PASSED" | tee -a "$REPORT"
+                # The exact uploaded build 024 APK is sha256:de80631a4b30... .
+                # Its backup UI (BackupActivity), BackupWorker and restore logic
+                # are defined in classes2.dex. Assert the patch did not rewrite
+                # that DEX, or the separate classes3.dex, before approving it.
+                EXPECTED_APK_SHA="de80631a4b305c9ae46ea86195085a36cdf21371cc092801ef36b549b2586b5b"
+                ACTUAL_APK_SHA="$(sha256sum "$APK" | cut -d' ' -f1)"
+                if [[ "$ACTUAL_APK_SHA" == "$EXPECTED_APK_SHA" ]]; then
+                  for DEX in classes2.dex classes3.dex; do
+                    ORIG_HASH="$(unzip -p "$APK" "$DEX" | sha256sum | cut -d' ' -f1)"
+                    PATCH_HASH="$(unzip -p "$RUNNER_TEMP/patched.apk" "$DEX" | sha256sum | cut -d' ' -f1)"
+                    echo "$DEX original=$ORIG_HASH patched=$PATCH_HASH" | tee -a "$REPORT"
+                    if [[ "$ORIG_HASH" != "$PATCH_HASH" ]]; then
+                      echo "BACKUP_CODE_UNCHANGED=FAILED: $DEX changed" | tee -a "$REPORT"
+                      exit 1
+                    fi
+                  done
+                  echo "BACKUP_CODE_UNCHANGED=PASSED (both non-target DEX files identical)" | tee -a "$REPORT"
+                  echo "BACKUP_RUNTIME_RESULT=NOT_TESTED (no Android save/restore run)" | tee -a "$REPORT"
+                else
+                  echo "BACKUP_CODE_UNCHANGED=UNVERIFIED: publisher APK SHA differs from uploaded target" | tee -a "$REPORT"
+                fi
               else
                 echo "PATCH_STAGE_RESULT=FAILED exit=$STATUS (bundle NOT validated)" | tee -a "$REPORT"
               fi
