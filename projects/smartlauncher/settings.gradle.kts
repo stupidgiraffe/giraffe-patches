@@ -7,5 +7,5 @@ pluginManagement {
         }
     }
 }
-plugins { id("app.reseam.workspace") version "0.32.0" }
+plugins { id("app.reseam.workspace") version "0.33.0" }
 rootProject.name = "giraffe-patches"

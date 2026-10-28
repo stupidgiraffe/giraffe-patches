@@ -1,4 +1,4 @@
-name: Build Icon Pack Studio Reseam 0.32.0 (manual)
+name: Build Icon Pack Studio Reseam 0.33.0 (manual)
 
 on:
   workflow_dispatch:
@@ -16,6 +16,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Verify Reseam 0.33.0 is still latest before building
+        run: |
+          python3 - <<'PY'
+          import json
+          import urllib.request
+          url = "https://git.reseam.app/api/v1/repos/reseam/reseam/releases/latest"
+          req = urllib.request.Request(url, headers={"User-Agent": "giraffe-patches-manual-ci"})
+          with urllib.request.urlopen(req, timeout=25) as response:
+              latest = json.load(response)["tag_name"]
+          expected = "v0.33.0"
+          if latest != expected:
+              raise SystemExit(f"STALE ENGINE PIN: expected {expected}, current upstream is {latest}; refusing outdated bundle")
+          print(f"Current engine verified: {latest}")
+          PY
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -25,14 +40,14 @@ jobs:
         with:
           gradle-version: '8.14.3'
 
-      - name: Install matched Reseam 0.32.0 CLI
+      - name: Install matched Reseam 0.33.0 CLI
         run: |
           set -euo pipefail
           curl --fail --location --retry 2 --connect-timeout 20 \
-            https://cdn.reseam.app/engine/v0.32.0/reseam-linux-x64 \
+            https://cdn.reseam.app/engine/v0.33.0/reseam-linux-x64 \
             --output "$RUNNER_TEMP/reseam"
           chmod +x "$RUNNER_TEMP/reseam"
-          "$RUNNER_TEMP/reseam" --version | grep -F '0.32.0'
+          "$RUNNER_TEMP/reseam" --version | grep -F '0.33.0'
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
           echo "RESEAM_BIN=$RUNNER_TEMP/reseam" >> "$GITHUB_ENV"
 
@@ -54,14 +69,14 @@ jobs:
           gradle --no-daemon --console=plain bundle
           test -s build/reseam/giraffe-iconpackstudio.reseam
 
-      - name: Verify 0.32.0 manifest, signature and patch registration
+      - name: Verify 0.33.0 manifest, signature and patch registration
         working-directory: projects/iconpackstudio
         run: |
           set -euo pipefail
           BUNDLE="build/reseam/giraffe-iconpackstudio.reseam"
           EXPECTED="9b5228381bdce62d03e9df9654f02c9ceb9c06fd67722aa201a6c01cc989d89b"
           unzip -t "$BUNDLE"
-          unzip -p "$BUNDLE" manifest.toml | grep -Fx 'engine = "0.32.0"'
+          unzip -p "$BUNDLE" manifest.toml | grep -Fx 'engine = "0.33.0"'
           unzip -p "$BUNDLE" manifest.toml | grep -F 'versions = ["2.4 build 001", "2.5 build 001"]'
           ACTUAL="$(unzip -p "$BUNDLE" manifest.pubkey | xxd -p -c 256)"
           test "$ACTUAL" = "$EXPECTED" || { echo "Signing key mismatch" >&2; exit 1; }
@@ -71,7 +86,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: giraffe-iconpackstudio-reseam-0.32.0
+          name: giraffe-iconpackstudio-reseam-0.33.0
           path: projects/iconpackstudio/build/reseam/giraffe-iconpackstudio.reseam
           retention-days: 7
           if-no-files-found: error
