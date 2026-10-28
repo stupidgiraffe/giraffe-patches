@@ -1,9 +1,13 @@
-# Icon Pack Studio 2.4 build 001
+# Icon Pack Studio — ReSeam 0.32.0
 
-Manual-build, version-scoped Reseam 0.29.0 patch. Source adapted by Giraffe Patches based on original Morphe/ReVanced research. Targets version code 240010 only.
+This is a version-scoped Reseam 0.32.0 patch for Icon Pack Studio:
+- 2.4 build 001 (240010)
+- 2.5 build 001 (250010)
 
-The patch modifies a local LicenseStatus constructor argument and a purchase-active query; it does not replace billing systems or distribute any proprietary APKs.
+The LicenseStatus class changed between the app builds, so the patch locates it with the stable `LicenseStatus(hasProAccess=` string. The relevant constructor retains the same two-Boolean signature. The obfuscated billing aggregate was also structurally checked in version 2.5.
 
-This subproject has an isolated Reseam workspace. To build with the repository's permanent signing key, manually invoke GitHub Actions workflow **Build Icon Pack Studio Reseam (manual)**. It has no push, PR, tag, schedule or recurring triggers.
+Use only the on-demand `Build Icon Pack Studio Reseam 0.32.0 (manual)` workflow. It compiles with matching Reseam 0.32.0 CLI/Gradle plugin and signs the resulting native `.reseam` bundle with the existing permanent key. It asserts the exact engine, advertised app versions, signing public key, and patch registration.
 
-After a successful job, download the `giraffe-iconpackstudio-reseam` artifact ZIP; extract the single `.reseam` bundle and import that (not this source ZIP) into Reseam. The exact resulting bundle must be patch-tested against the original APKM to verify behavioral compatibility. Build success by itself is not a runtime license-state test.
+Download the `giraffe-iconpackstudio-reseam-0.32.0` Actions artifact ZIP, extract the `.reseam` file, then import the file into ReSeam Manager 0.32.0.
+
+Successful compilation and signed metadata checks do not prove device runtime behavior. No app binaries or signing secrets are stored in this repository. No automated/scheduled CI runs are needed.
