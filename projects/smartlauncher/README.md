@@ -1,6 +1,6 @@
-# Smart Launcher 6.6 build 024 — ReSeam 0.31.0
+# Smart Launcher 6.6 build 024 — ReSeam 0.32.0
 
-This isolated project compiles a **Smart Launcher 6.6 build 024 (660240)** patch against ReSeam 0.31.0. It uses a distinct bundle ID `giraffe-smartlauncher` (separate from the legacy `giraffe-patches` build-021 bundle), while retaining the permanent Ed25519 signing identity and manual-only workflow. This avoids possible Manager cache/identity collisions when both versions are imported.
+This isolated project compiles a **Smart Launcher 6.6 build 024 (660240)** patch against ReSeam 0.32.0. It uses a distinct bundle ID `giraffe-smartlauncher` (separate from the legacy `giraffe-patches` build-021 bundle), while retaining the permanent Ed25519 signing identity and manual-only workflow. This avoids possible Manager cache/identity collisions when both versions are imported.
 
 Compatibility was established from the *actual uploaded APK*, not its filename:
 - Package `ginlemon.flowerfree`
@@ -16,6 +16,8 @@ Patch-stage acceptance (2026-10-26): ReSeam CLI 0.31.0 loaded the permanently si
 
 The patch registers **Enable Pro** with the internal **Disable Smart Launcher signature check** dependency. Build/version checking and signer verification do **not** establish that a patched build installs/launches correctly on a particular phone. User acceptance is required before marking build 024 device-tested.
 
-To build, manually dispatch `.github/workflows/smartlauncher-manual.yml`, download artifact `giraffe-smartlauncher-b024-reseam-0.31.0`, extract the `.reseam`, and import it directly into ReSeam Manager. No APKs or signing secrets are committed.
+New ReSeam 0.32.0 patch-stage acceptance (2026-10-29): manual run [40734815056](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/40734815056) verified the same publisher APK SHA-256 and reported 1 applied patch, 1 dependency, 0 skipped, 0 failed. The permanently signed bundle SHA-256 is `4625fb49d4e3bd17719dcf6215cc60e21c1ea760cd1106492f824864a097f1e9`. Device import and launch are still unverified.
+
+To build, manually dispatch `.github/workflows/smartlauncher-manual.yml`, download artifact `giraffe-smartlauncher-b024-reseam-0.32.0`, extract the `.reseam`, and import it directly into ReSeam Manager. No APKs or signing secrets are committed.
 
 **Historical build 021:** The verified older source remains in `apps/smartlauncher/patch/` and in Git history, and the October 26 signed ReSeam 0.31.0 artifact is in successful run [40301721159](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/40301721159). Do not claim this build 024 source supports 021; different obfuscated owner classes require different version-scoped builds.
