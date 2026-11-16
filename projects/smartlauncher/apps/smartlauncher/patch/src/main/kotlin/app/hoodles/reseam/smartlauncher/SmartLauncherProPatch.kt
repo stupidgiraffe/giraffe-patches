@@ -112,11 +112,8 @@ private val premiumAccessChanged = method("premium access changed broadcaster") 
     strings("ginlemon.action.hasPremiumAccessChanged")
 }
 
-val enableSmartLauncherPro = patch("Enable Pro") {
-    description(
-        "Marks the lifetime PurchasableItem active and broadcasts the app's " +
-            "existing premium-access-changed event."
-    )
+val enableSmartLauncherPro = patch(SmartLauncherPatchStrings.enablePro) {
+    description(SmartLauncherPatchStrings.enableProDescription)
     compatibleWith(SMART_LAUNCHER)
     dependsOn(disableSmartLauncherSignatureCheck)
     execute {
