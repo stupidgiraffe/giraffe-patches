@@ -162,17 +162,16 @@ val enableSmartLauncherPro = patch(SmartLauncherPatchStrings.enablePro) {
         startPremiumLossDialog.skip()
         purchaseItemsCtor.after {
             val lifetime = staticField(lifetimeItemField)
-            val enabled = lifetime.call(purchasableItemGet)
-            whenFalse(enabled) {
-                val app = call(getApp)
-                lifetime.call(purchasableItemSet, app, bool(true))
-                call(
-                    premiumAccessChanged,
-                    staticField(purchaseItemsSingleton),
-                    app,
-                    bool(true),
-                )
-            }
+            // Always seed the backed state and notify listeners. The runtime read hook
+            // returns true even before storage has been seeded, so no guard is valid here.
+            val app = call(getApp)
+            lifetime.call(purchasableItemSet, app, bool(true))
+            call(
+                premiumAccessChanged,
+                staticField(purchaseItemsSingleton),
+                app,
+                bool(true),
+            )
         }
     }
 }
