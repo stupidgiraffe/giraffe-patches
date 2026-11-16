@@ -1,5 +1,12 @@
 # Compatibility and tested provenance
 
+## Smart Launcher build 026 runtime regression (November 16, 2026)
+
+**FAIL — original b026 bundle with ReSeam 0.41.0.** The user installed the exact patched build 026 APK (its SHA-256 matched ReSeam's output) and saw “Restore your premium license” / `ginlemon.flower.premium.LeavingPremiumActivity` repeatedly. ReSeam reporting 1 applied patch + 1 dependency was not sufficient. The initial one-time purchase-state write did not survive the app's later entitlement checks.
+
+**V2 candidate, device acceptance pending.** A new exact-version patch changes the lifetime getter, setter and initialization write and skips the specific `HomeScreen.onResume` call launching `LeavingPremiumActivity`. Manual CI run [43884782691](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/43884782691) passed compilation, signature and exact-APK patch stage. V2 bundle SHA-256 `ec1d45248285b523f9f13cdaecde56ddd1152f80d1230c65ac5e51f2104604a3`. **No on-device import, installation, or Pro-function success has been verified for V2.** Preserve user data; the device has a gzip-tested root recovery archive (34 MB) at `Download/SmartLauncher_prepatch_b026_20261116.tar.gz`.
+
+
 ## Smart Launcher 6.6 build 026 — ReSeam engine 0.41.0 (2026-11-16)
 
 - Uploaded APK: `ginlemon.flowerfree`, version `6.6 build 026`, code `660260`, SHA-256 `304eade55ce297c3f874c3fa745cae5dc6dce08f35185bbe8855fa3cc3e7bdf3`. The developer's direct-download APK had the **identical SHA-256**.

@@ -1,4 +1,4 @@
-name: Build Smart Launcher Reseam 0.41.0 (manual)
+name: Build Smart Launcher ReSeam 0.41.0 (manual runtime fix)
 
 on:
   workflow_dispatch:
@@ -78,7 +78,7 @@ jobs:
           unzip -t "$BUNDLE"
           unzip -p "$BUNDLE" manifest.toml | grep -Fx 'engine = "0.41.0"'
           unzip -p "$BUNDLE" manifest.toml | grep -F 'versions = ["6.6 build 026"]'
-          unzip -p "$BUNDLE" manifest.toml | grep -F 'verified source target 6.6 build 026'
+          unzip -p "$BUNDLE" manifest.toml | grep -F 'build 026 runtime Pro-state and license-loss safeguard (v2)'
           ACTUAL="$(unzip -p "$BUNDLE" manifest.pubkey | xxd -p -c 256)"
           test "$ACTUAL" = "$EXPECTED" || { echo "Signing key mismatch" >&2; exit 1; }
           "$RESEAM_BIN" bundle list "$BUNDLE" --trust "$EXPECTED" --verbose

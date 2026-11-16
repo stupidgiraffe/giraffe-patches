@@ -1,3 +1,5 @@
+> **WARNING (Nov 16, 2026): The original b026 bundle failed Pro activation on the user's device despite passing the CLI test. A revised V2 candidate is build/patch-stage validated but NOT yet device-tested. Do not install the old b026 bundle or tap Smart Launcher's “Disable all the premium features” button.** See the [Smart Launcher runtime incident](projects/smartlauncher/README.md).
+
 > **Latest validated Smart Launcher patch:** **6.6 build 026** (`660260`) for **ReSeam Manager 0.44.0 / engine 0.41.0**. The [manual signed build](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/43843411678) applied to the **exact original APK** (1 patch + 1 dependency; 0 failures). On-device import/install/Pro and native backup/restore still need acceptance. Source and complete evidence: [projects/smartlauncher](projects/smartlauncher/README.md).
 
 > **Icon Pack Studio is separate:** its last verified targets are 2.4/2.5, previously built for older ReSeam engines; **do not treat that artifact as compatible with engine 0.41.0 without rebuilding**. Older Smart Launcher builds 021 and 024 remain historical.

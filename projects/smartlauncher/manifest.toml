@@ -1,5 +1,5 @@
 [bundle]
 name = "giraffe-smartlauncher"
 author = "stupidgiraffe"
-description = "Smart Launcher Enable Pro and signature-check dependency, verified source target 6.6 build 026."
+description = "Smart Launcher Enable Pro and signature-check dependency, build 026 runtime Pro-state and license-loss safeguard (v2)."
 format_version = 1
