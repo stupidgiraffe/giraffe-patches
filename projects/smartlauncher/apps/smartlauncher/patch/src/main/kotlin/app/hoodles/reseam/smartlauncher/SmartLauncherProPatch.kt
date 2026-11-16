@@ -159,7 +159,7 @@ val enableSmartLauncherPro = patch(SmartLauncherPatchStrings.enablePro) {
             }
         }
         // The separate resume-time revocation dialog can reset user premium settings.
-        startPremiumLossDialog.skip()
+        startPremiumLossDialog.skipWhen { bool(true) }
         purchaseItemsCtor.after {
             val lifetime = staticField(lifetimeItemField)
             // Always seed the backed state and notify listeners. The runtime read hook
