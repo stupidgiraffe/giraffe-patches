@@ -1,5 +1,17 @@
 # Smart Launcher 6.6 build 026 — ReSeam engine 0.41.0
 
+## Runtime failure found; V2 candidate available (November 16, 2026)
+
+**The original build 026 bundle was installed and failed on the user's Android 16 device.** ReSeam showed “Enable Pro” applied, but Smart Launcher opened “Restore your premium license” / `LeavingPremiumActivity` repeatedly. A successful CLI patch stage is NOT proof that Pro works at runtime. Do not use the original bundle or press **Disable all the premium features**; that may reset premium layout settings.
+
+A revised V2 candidate, built and patch-stage tested in [manual GitHub run 43884782691](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/43884782691), corrects three runtime paths: it keeps the lifetime purchase result true on reads, blocks false writes for that specific lifetime item, and suppresses the matched home-screen launch of the destructive license-loss prompt. It also seeds the original persistent purchase state. Matching only b026 was preserved. Non-target DEX files were unchanged.
+
+V2 signed bundle SHA-256: `ec1d45248285b523f9f13cdaecde56ddd1152f80d1230c65ac5e51f2104604a3`. Signer unchanged. **V2 is not yet on-device verified.** Import, install, Pro behavior, backup creation and restore still require testing. Do not advertise it as a working release until those checks succeed.
+
+A gzip-tested 34 MB root recovery snapshot was preserved on the test phone at `Download/SmartLauncher_prepatch_b026_20261116.tar.gz`; no app data was cleared.
+
+---
+
 **Current supported app:** `ginlemon.flowerfree`, version **6.6 build 026** (versionCode `660260`). Built for **ReSeam Manager 0.44.0 / engine 0.41.0** using the matching SDK and CLI. This is a version-scoped `giraffe-smartlauncher` bundle signed with the project's existing permanent Ed25519 identity.
 
 ## Verification — 2026-11-16
