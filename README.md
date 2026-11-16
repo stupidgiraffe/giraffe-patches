@@ -1,13 +1,13 @@
-> **Current manually built bundles:** Smart Launcher **6.6 build 024 (660240)** and Icon Pack Studio **2.5 build 001 (250010)** for ReSeam Manager **0.32.0** (engine 0.32.0). Smart Launcher passed CLI patch-stage verification on 2026-10-29; Icon Pack Studio passed compilation, signer, and manifest checks but still needs APK patch-stage and device checks. Previously verified 0.31.0 artifacts remain historical. See `projects/smartlauncher` and `projects/iconpackstudio` for the isolated, manual-only projects.
+> **Latest validated Smart Launcher patch:** **6.6 build 026** (`660260`) for **ReSeam Manager 0.44.0 / engine 0.41.0**. The [manual signed build](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/43843411678) applied to the **exact original APK** (1 patch + 1 dependency; 0 failures). On-device import/install/Pro and native backup/restore still need acceptance. Source and complete evidence: [projects/smartlauncher](projects/smartlauncher/README.md).
 
-> **Historical note:** Smart Launcher **6.6 build 024 (660240)** for ReSeam **0.31.0** is maintained in [`projects/smartlauncher`](projects/smartlauncher/README.md), with a manual-only signed build workflow. It has been bytecode-inspected and compiled, but needs a device patch/install check. Historical build 021 remains the last user-reported working target; root `apps/smartlauncher` is the legacy 021 source.
+> **Icon Pack Studio is separate:** its last verified targets are 2.4/2.5, previously built for older ReSeam engines; **do not treat that artifact as compatible with engine 0.41.0 without rebuilding**. Older Smart Launcher builds 021 and 024 remain historical.
 
 <p align="center">
   <img src="assets/giraffe-patches-banner.svg" alt="Giraffe Patches — independent Android patches for Reseam" width="100%">
 </p>
 
 <p align="center">
-  <a href="https://reseam.app/"><img src="https://img.shields.io/badge/Reseam-0.26.x-8c77ff?style=flat-square" alt="Reseam 0.26.x"></a>
+  <a href="https://reseam.app/"><img src="https://img.shields.io/badge/Reseam-0.41.0-8c77ff?style=flat-square" alt="Reseam 0.41.0"></a>
   <a href="https://www.gnu.org/licenses/gpl-3.0.html"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-45bfa3?style=flat-square" alt="GPL-3.0-or-later"></a>
   <a href="https://github.com/stupidgiraffe/giraffe-patches/actions/workflows/validate.yml"><img src="https://github.com/stupidgiraffe/giraffe-patches/actions/workflows/validate.yml/badge.svg" alt="Validation workflow"></a>
   <a href="https://buymeacoffee.com/stupidgiraffe"><img src="https://img.shields.io/badge/Support-Buy%20Me%20a%20Coffee-f6c960?style=flat-square" alt="Buy Me a Coffee"></a>
@@ -21,22 +21,22 @@ Independent community project · Not affiliated with Reseam, Smart Launcher, or 
 ## ⚡ Smart Launcher 6 — current supported target
 
 <table>
-<tr><td><b>Latest confirmed patchable</b></td><td><b>6.6 build 021</b> (version code <code>660210</code>)</td></tr>
+<tr><td><b>CLI patch-stage verified target</b></td><td><b>6.6 build 026</b> (version code <code>660260</code>)</td></tr>
 <tr><td>Package</td><td><code>ginlemon.flowerfree</code></td></tr>
-<tr><td>Device verification</td><td>Android 16, ARM64 phone; patch applied, installed, and launched (community tester, October 2026)</td></tr>
-<tr><td>APK variants</td><td>ARM64 and universal APKM packages have matching DEX bytecode. Patched installation confirmed on one device, <em>not</em> independently on every variant.</td></tr>
-<tr><td>Reseam bundle engine</td><td><code>0.26.2</code> (current source builds); <code>0.20.0</code> (historical device-tested bundle)</td></tr>
-<tr><td>Upstream comparison</td><td>Morphe lists 6.6 build 016; this is an <em>independent port</em> with a build-021 matcher correction.</td></tr>
+<tr><td>Device verification</td><td>Pending. Original APK patched successfully in CLI; device installation and native backup/restore not tested.</td></tr>
+<tr><td>Verified original APK</td><td>Developer direct APK matches the owner's uploaded SHA-256 exactly.</td></tr>
+<tr><td>ReSeam bundle engine</td><td><code>0.41.0</code>, for Manager 0.44.0</td></tr>
+<tr><td>Build workflow</td><td>Manual only; permanent signer, fail-closed patch-stage acceptance.</td></tr>
 </table>
 
-> **Build 021 is the latest release verified by this project, not a promise that every future Smart Launcher release is compatible.** The latest publicly listed upload was also build 021 when checked on 2026-10-10 ([APKMirror release feed](https://www.apkmirror.com/uploads/?appcategory=smart-launcher)). Updates can change obfuscated code and break a patch.
+> **Build 026 has passed CLI patch-stage validation but not device acceptance.** Obfuscated matchers are exact-version scoped; do not force this bundle onto other app releases.
 
 ### What is in the bundle?
 
 - **Disable Smart Launcher signature check:** prevents a specific integrity-check exit, needed by the following patch.
 - **Enable Pro:** applies the purchase-item lifetime state change and triggers the existing premium-access event. It is dependent on the first patch.
 
-Both are scoped to Smart Launcher `6.6 build 021`. **No Discord, YouTube, Instagram, or unrelated patches are included.** Existing patches shown as *skipped* in Reseam belong to other installed bundles.
+Both are scoped to Smart Launcher `6.6 build 026`. **No Discord, YouTube, Instagram, or unrelated patches are included.** Existing patches shown as *skipped* in Reseam belong to other installed bundles.
 
 ## 📦 Installation and automatic updates
 
@@ -52,12 +52,12 @@ The private signing seed is backed up in APIVault and encrypted in GitHub Action
 
 Once the first stable release is published, add that **URL as a bundle source in Reseam Manager**, rather than importing a local `.reseam` file. Manager checks the index and installs new releases signed with the same trusted key. The URL returns 404 until the first stable release; the development preview artifacts are not an update source.
 
-1. Obtain **Smart Launcher 6.6 build 021** from your own trusted source; keep an unmodified backup.
+1. Obtain **Smart Launcher 6.6 build 026** from the developer, or use the original supplied APK. Preserve your installed launcher data and native backups.
 2. Open [Reseam Manager](https://reseam.app/) and, after the first stable release, **add the update feed URL above**. A manual `.reseam` import cannot receive updates.
 3. Review and trust the bundle **public signing key**. Enable **Enable Pro** and its Smart Launcher dependency; disable unrelated universal patches during troubleshooting.
 4. Patch your original APKM/APK. Install the resulting package and verify on your device.
 
-**Release status:** CI builds a bundle for the current Reseam engine, and a **signed preview build** can be downloaded from the [latest successful Preview workflow](https://github.com/stupidgiraffe/giraffe-patches/actions/workflows/preview.yml) (open a run → **Artifacts** → `giraffe-patches-preview-reseam` → extract the single `.reseam` file). The preview uses the permanent signing key if configured in GitHub Actions, otherwise a temporary CI signer; this exact new bundle has **not yet been tested on-device**. The previously working signed test bundle's provenance is recorded in [Compatibility & provenance](docs/COMPATIBILITY.md). Stable downloads and the live update feed will appear on [Releases](https://github.com/stupidgiraffe/giraffe-patches/releases) only after configuring the permanent signing seed and real device verification. GitHub Actions checks upstream Reseam daily and opens review PRs for future engine changes; it cannot safely self-release untested patches.
+**Release status:** the dedicated [Smart Launcher manual workflow](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/43843411678) built and patch-tested ReSeam engine 0.41.0 against the exact original build 026 APK. The unrelated legacy preview and release workflows are disabled. No recurring GitHub Actions are authorized.
 
 > Reseam bundles contain patches, **not APKs**. We never distribute proprietary Smart Launcher packages, patched app APKs, private signing keys, or user data.
 
@@ -75,7 +75,7 @@ Read the [compatibility record](docs/COMPATIBILITY.md), [build guide](docs/BUILD
 
 ## 🧰 Developers
 
-The source lives in `apps/smartlauncher/patch/` and uses the official [Reseam patch SDK](https://reseam.app/docs/engine/bundles/). The workspace plugin and matching CLI are pinned to `0.26.2`. The historical device-tested bundle used 0.20.0. Run `gradle bundle` with the matching Reseam CLI, Android SDK, and a private signing key; see [BUILD.md](docs/BUILD.md) for exact requirements.
+The current build 026 source lives in `projects/smartlauncher/apps/smartlauncher/patch/` (legacy build 021 source remains in `apps/smartlauncher/patch/`) and uses the official [Reseam patch SDK](https://reseam.app/docs/engine/bundles/). The current Smart Launcher workspace plugin and matching CLI are pinned to `0.41.0`. The historical device-tested bundle used 0.20.0. Run `gradle bundle` with the matching Reseam CLI, Android SDK, and a private signing key; see [BUILD.md](docs/BUILD.md) for exact requirements.
 
 Smart Launcher build 021 contains multiple initializers with the `"lifetime"` string and 11 classes containing the premium-access broadcast string. To fail closed instead of matching unrelated code, the patch now resolves the **verified build-021 purchase-items owner** by exact descriptor and still constrains its initializer. Future Smart Launcher builds require separate analysis.
 
