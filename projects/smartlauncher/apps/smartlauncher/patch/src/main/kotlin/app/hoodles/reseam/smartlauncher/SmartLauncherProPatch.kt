@@ -112,11 +112,54 @@ private val premiumAccessChanged = method("premium access changed broadcaster") 
     strings("ginlemon.action.hasPremiumAccessChanged")
 }
 
+// Runtime safeguard for build 026: the app re-checks entitlements after <clinit>.
+// Re-assert only the lifetime purchase state when its Boolean property is read or updated,
+// instead of changing the shared getter/setter for every PurchasableItem.
+// The home-screen invalid-license dialog is a distinct activation path in this APK.
+// Suppress only its startActivity call; never invoke the dialog's destructive reset action.
+private val homeScreenClass = classTarget("Smart Launcher home screen") {
+    bytecode.findClass("Lginlemon/flower/HomeScreen;")
+        ?: error("Smart Launcher build 026 HomeScreen not found")
+}
+
+private val homeScreenResume = method("Home screen onResume") {
+    inClass(homeScreenClass)
+    name("onResume")
+    params()
+    returns(Type.Void)
+}
+
+private val startPremiumLossDialog = homeScreenResume
+    .point("LeavingPremiumActivity class reference") {
+        opcode(Opcode.CONST_CLASS)
+        type("Lginlemon/flower/premium/LeavingPremiumActivity;")
+    }
+    .next {
+        invokeVirtual {
+            owner("android.content.Context")
+            name("startActivity")
+            params("Landroid/content/Intent;")
+            returns(Type.Void)
+        }
+    }
+
 val enableSmartLauncherPro = patch(SmartLauncherPatchStrings.enablePro) {
     description(SmartLauncherPatchStrings.enableProDescription)
     compatibleWith(SMART_LAUNCHER)
     dependsOn(disableSmartLauncherSignatureCheck)
     execute {
+        // The original one-shot initializer was insufficient for real installed build 026:
+        // a later entitlement update could revoke the stored lifetime flag.
+        purchasableItemGet.after {
+            whenEqual(thisObject, staticField(lifetimeItemField)) { returnTrue() }
+        }
+        purchasableItemSet.before {
+            whenEqual(thisObject, staticField(lifetimeItemField)) {
+                param(1).assign(bool(true))
+            }
+        }
+        // The separate resume-time revocation dialog can reset user premium settings.
+        startPremiumLossDialog.skip()
         purchaseItemsCtor.after {
             val lifetime = staticField(lifetimeItemField)
             val enabled = lifetime.call(purchasableItemGet)
