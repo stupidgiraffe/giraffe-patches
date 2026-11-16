@@ -1,23 +1,25 @@
-# Smart Launcher 6.6 build 024 — ReSeam 0.33.0
+# Smart Launcher 6.6 build 026 — ReSeam engine 0.41.0
 
-This isolated project compiles a **Smart Launcher 6.6 build 024 (660240)** patch against ReSeam 0.33.0. It uses a distinct bundle ID `giraffe-smartlauncher` (separate from the legacy `giraffe-patches` build-021 bundle), while retaining the permanent Ed25519 signing identity and manual-only workflow. This avoids possible Manager cache/identity collisions when both versions are imported.
+**Current supported app:** `ginlemon.flowerfree`, version **6.6 build 026** (versionCode `660260`). Built for **ReSeam Manager 0.44.0 / engine 0.41.0** using the matching SDK and CLI. This is a version-scoped `giraffe-smartlauncher` bundle signed with the project's existing permanent Ed25519 identity.
 
-Compatibility was established from the *actual uploaded APK*, not its filename:
-- Package `ginlemon.flowerfree`
-- Version name `6.6 build 024`, version code `660240`
-- APK SHA-256 `de80631a4b305c9ae46ea86195085a36cdf21371cc092801ef36b549b2586b5b`
-- APK contents: `classes.dex`, `classes2.dex`, `classes3.dex`; ZIP integrity passed.
-- Purchase-items owner moved from `Lmn8;` (build 021) to **`Li89;`** (build 024). In 024, `Lmn8;` still exists but is unrelated, so retaining the old hardcoded class would be wrong.
-- `Li89;-><clinit>()V` holds the `lifetime` item assigned to field `Li89;.c:Lmm8;`; `Lmm8;` has the matching no-arg boolean getter and Context/boolean setter.
-- `Li89;.a(Li89;,Context,boolean)V` contains the premium access changed broadcast string, and the Smart Launcher signature warning method still calls `System.exit(int)`. The unmodified patch flow therefore has verified corresponding targets.
-- The global public/static zero-arg `Lginlemon/flower/App;` return signature was found in the APK.
+## Verification — 2026-11-16
 
-Patch-stage acceptance (2026-10-26): ReSeam CLI 0.31.0 loaded the permanently signed `giraffe-smartlauncher` bundle and applied `Enable Pro` plus its dependency to the developer's direct APK, which had SHA-256 `de80631a4b305c9ae46ea86195085a36cdf21371cc092801ef36b549b2586b5b`—identical to the owner's uploaded APK. The engine reported 1 applied, 1 dependency, 0 skipped and 0 failed, and produced a patched APK. Successful on-device import/install remains unproven. Evidence: [manual run 40309922742](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/40309922742). This build uses a separate bundle name to avoid possible Manager conflicts with legacy `giraffe-patches`; the conflict is a hypothesis, not a proven root cause.
+- Original user-supplied APK SHA-256: `304eade55ce297c3f874c3fa745cae5dc6dce08f35185bbe8855fa3cc3e7bdf3`.
+- The official Smart Launcher direct-download APK had **the identical SHA-256**, verified in the [one-time manual GitHub Actions run](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/43843411678).
+- Direct DEX inspection found the **new** purchase-items owner `Lcn9;` (`Li89;` was build 024 only), with the `lifetime` initializer, item `Lz09;` getter/setter, premium-access broadcaster, and signature-check method.
+- ReSeam CLI 0.41.0 successfully applied **Enable Pro (1 patch)** and the internal signature-check dependency (1 dependency), with **0 skipped and 0 failed**, producing a patched APK.
+- The signed bundle's archive, engine version, app compatibility, manifest public key and patch catalog all passed verification.
+- The original and patched `classes2.dex` and `classes3.dex` files were byte-for-byte identical. The patch rewrote `classes.dex` only. This reduces but does not eliminate backup-related risk.
+- Signed `.reseam` SHA-256: `b811064d297dd9b383fcd1e8163e2e2c3a3a9a3fdefe049609d3f686b3a27a9d`.
+- Public signing key: `9b5228381bdce62d03e9df9654f02c9ceb9c06fd67722aa201a6c01cc989d89b`.
+- **Not yet tested on device:** successful ReSeam Manager import, install, launch, Pro behavior, backup creation and restore. Do not claim full runtime compatibility until confirmed.
 
-The patch registers **Enable Pro** with the internal **Disable Smart Launcher signature check** dependency. Build/version checking and signer verification do **not** establish that a patched build installs/launches correctly on a particular phone. User acceptance is required before marking build 024 device-tested.
+## Build and import
 
-New ReSeam 0.33.0 patch-stage acceptance (2026-10-29): manual run [40734815056](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/40734815056) verified the same publisher APK SHA-256 and reported 1 applied patch, 1 dependency, 0 skipped, 0 failed. The permanently signed bundle SHA-256 is `4625fb49d4e3bd17719dcf6215cc60e21c1ea760cd1106492f824864a097f1e9`. Device import and launch are still unverified.
+Run only the manual `.github/workflows/smartlauncher-manual.yml` on the reviewed source, using engine `0.41.0` and permanent signing secret `RESEAM_SIGNING_KEY_BASE64`. The workflow fails closed unless the downloaded original APK matches the uploaded `660260` binary, real patching succeeds, and unaffected DEX files match. There are **no scheduled or push-triggered builds**.
 
-To build, manually dispatch `.github/workflows/smartlauncher-manual.yml`, download artifact `giraffe-smartlauncher-b024-reseam-0.33.0`, extract the `.reseam`, and import it directly into ReSeam Manager. No APKs or signing secrets are committed.
+From [successful workflow run 43843411678](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/43843411678), download the `giraffe-smartlauncher-b026-reseam-0.41.0` artifact, extract `giraffe-smartlauncher.reseam`, and import that `.reseam` file into ReSeam Manager 0.44.0. This patch bundle does not contain a proprietary APK.
 
-**Historical build 021:** The verified older source remains in `apps/smartlauncher/patch/` and in Git history, and the October 26 signed ReSeam 0.31.0 artifact is in successful run [40301721159](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/40301721159). Do not claim this build 024 source supports 021; different obfuscated owner classes require different version-scoped builds.
+**Backup caveat:** A previous on-device Smart Launcher backup failure was resolved by choosing a persistent folder through Smart Launcher Settings → Backup → Advanced settings → Select backup folder, granting Android document access. The new patch's backup **creation and restore** are not yet device-tested. Preserve current launcher data and exported backups before installing.
+
+**History:** build 024 used `Li89;`, with valid prior ReSeam 0.31–0.33 builds. Build 021 used `Lmn8;`. Those old obfuscated identifiers do not apply to build 026. Historical tested references remain in [Compatibility & provenance](../../docs/COMPATIBILITY.md).

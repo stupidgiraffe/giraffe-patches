@@ -1,4 +1,4 @@
-name: Build Smart Launcher Reseam 0.33.0 (manual)
+name: Build Smart Launcher Reseam 0.41.0 (manual)
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify Reseam 0.33.0 is still latest before building
+      - name: Verify Reseam 0.41.0 is still latest before building
         run: |
           python3 - <<'PY'
           import json
@@ -25,7 +25,7 @@ jobs:
           req = urllib.request.Request(url, headers={"User-Agent": "giraffe-patches-manual-ci"})
           with urllib.request.urlopen(req, timeout=25) as response:
               latest = json.load(response)["tag_name"]
-          expected = "v0.33.0"
+          expected = "v0.41.0"
           if latest != expected:
               raise SystemExit(f"STALE ENGINE PIN: expected {expected}, current upstream is {latest}; refusing outdated bundle")
           print(f"Current engine verified: {latest}")
@@ -40,14 +40,14 @@ jobs:
         with:
           gradle-version: '8.14.3'
 
-      - name: Install matched Reseam 0.33.0 CLI
+      - name: Install matched Reseam 0.41.0 CLI
         run: |
           set -euo pipefail
           curl --fail --location --retry 2 --connect-timeout 20 \
-            https://cdn.reseam.app/engine/v0.33.0/reseam-linux-x64 \
+            https://cdn.reseam.app/engine/v0.41.0/reseam-linux-x64 \
             --output "$RUNNER_TEMP/reseam"
           chmod +x "$RUNNER_TEMP/reseam"
-          "$RUNNER_TEMP/reseam" --version | grep -F '0.33.0'
+          "$RUNNER_TEMP/reseam" --version | grep -F '0.41.0'
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
           echo "RESEAM_BIN=$RUNNER_TEMP/reseam" >> "$GITHUB_ENV"
 
@@ -69,16 +69,16 @@ jobs:
           gradle --no-daemon --console=plain bundle
           test -s build/reseam/giraffe-smartlauncher.reseam
 
-      - name: Verify 0.33.0 archive, signer and patch catalog
+      - name: Verify 0.41.0 archive, signer and patch catalog
         working-directory: projects/smartlauncher
         run: |
           set -euo pipefail
           BUNDLE="build/reseam/giraffe-smartlauncher.reseam"
           EXPECTED="9b5228381bdce62d03e9df9654f02c9ceb9c06fd67722aa201a6c01cc989d89b"
           unzip -t "$BUNDLE"
-          unzip -p "$BUNDLE" manifest.toml | grep -Fx 'engine = "0.33.0"'
-          unzip -p "$BUNDLE" manifest.toml | grep -F 'versions = ["6.6 build 024"]'
-          unzip -p "$BUNDLE" manifest.toml | grep -F 'verified source target 6.6 build 024'
+          unzip -p "$BUNDLE" manifest.toml | grep -Fx 'engine = "0.41.0"'
+          unzip -p "$BUNDLE" manifest.toml | grep -F 'versions = ["6.6 build 026"]'
+          unzip -p "$BUNDLE" manifest.toml | grep -F 'verified source target 6.6 build 026'
           ACTUAL="$(unzip -p "$BUNDLE" manifest.pubkey | xxd -p -c 256)"
           test "$ACTUAL" = "$EXPECTED" || { echo "Signing key mismatch" >&2; exit 1; }
           "$RESEAM_BIN" bundle list "$BUNDLE" --trust "$EXPECTED" --verbose
@@ -103,7 +103,7 @@ jobs:
             sha256sum "$APK" | tee -a "$REPORT"
             "$RESEAM_BIN" info "$APK" > "$RUNNER_TEMP/app-info.txt" 2>&1
             cat "$RUNNER_TEMP/app-info.txt" | tee -a "$REPORT"
-            if grep -Fq 'version:    6.6 build 024' "$RUNNER_TEMP/app-info.txt"; then
+            if grep -Fq 'version:    6.6 build 026' "$RUNNER_TEMP/app-info.txt"; then
               echo "TARGET_MATCH: executing real patch-stage test" | tee -a "$REPORT"
               "$RESEAM_BIN" patch "$APK" --bundle "$BUNDLE" \
                 --trust "9b5228381bdce62d03e9df9654f02c9ceb9c06fd67722aa201a6c01cc989d89b" \
@@ -113,11 +113,11 @@ jobs:
               tail -90 "$RUNNER_TEMP/patch-log.txt" | tee -a "$REPORT"
               if [ "$STATUS" -eq 0 ]; then
                 echo "PATCH_STAGE_RESULT=PASSED" | tee -a "$REPORT"
-                # The exact uploaded build 024 APK is sha256:de80631a4b30... .
+                # Compare against the exact user-uploaded build 026 APK.
                 # Its backup UI (BackupActivity), BackupWorker and restore logic
                 # are defined in classes2.dex. Assert the patch did not rewrite
                 # that DEX, or the separate classes3.dex, before approving it.
-                EXPECTED_APK_SHA="de80631a4b305c9ae46ea86195085a36cdf21371cc092801ef36b549b2586b5b"
+                EXPECTED_APK_SHA="304eade55ce297c3f874c3fa745cae5dc6dce08f35185bbe8855fa3cc3e7bdf3"
                 ACTUAL_APK_SHA="$(sha256sum "$APK" | cut -d' ' -f1)"
                 if [[ "$ACTUAL_APK_SHA" == "$EXPECTED_APK_SHA" ]]; then
                   for DEX in classes2.dex classes3.dex; do
@@ -139,22 +139,24 @@ jobs:
               fi
               rm -f "$RUNNER_TEMP/patched.apk" "$RUNNER_TEMP/patched.pk8" "$RUNNER_TEMP/patched.der"
             else
-              echo "APK_VERSION_MISMATCH: cannot claim full patch-stage validation for build 024." | tee -a "$REPORT"
+              echo "APK_VERSION_MISMATCH: cannot claim full patch-stage validation for build 026." | tee -a "$REPORT"
             fi
             rm -f "$APK"
           fi
           cp "$REPORT" validation-report.txt
+          grep -Fq 'PATCH_STAGE_RESULT=PASSED' validation-report.txt || { echo 'REFUSING TO PUBLISH: real APK patching did not pass' >&2; exit 1; }
+          grep -Fq 'BACKUP_CODE_UNCHANGED=PASSED' validation-report.txt || { echo 'REFUSING TO PUBLISH: untouched DEX validation did not pass' >&2; exit 1; }
 
       - uses: actions/upload-artifact@v4
         with:
-          name: smartlauncher-validation-report-0.33.0
+          name: smartlauncher-validation-report-0.41.0
           path: projects/smartlauncher/validation-report.txt
           retention-days: 7
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v4
         with:
-          name: giraffe-smartlauncher-b024-reseam-0.33.0
+          name: giraffe-smartlauncher-b026-reseam-0.41.0
           path: projects/smartlauncher/build/reseam/giraffe-smartlauncher.reseam
           retention-days: 7
           if-no-files-found: error

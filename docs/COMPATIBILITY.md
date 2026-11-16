@@ -1,14 +1,27 @@
 # Compatibility and tested provenance
 
+## Smart Launcher 6.6 build 026 — ReSeam engine 0.41.0 (2026-11-16)
+
+- Uploaded APK: `ginlemon.flowerfree`, version `6.6 build 026`, code `660260`, SHA-256 `304eade55ce297c3f874c3fa745cae5dc6dce08f35185bbe8855fa3cc3e7bdf3`. The developer's direct-download APK had the **identical SHA-256**.
+- Exact DEX fingerprint changes: `Lcn9;` is the purchase-items class (replaces `Li89;` in build 024); `Lcn9;-><clinit>()V` contains the `lifetime` item, uses `Lz09;.b():Z` and `Lz09;.a(Context,Z):V` for purchase state, and `Lcn9;.a(Lcn9;,Context,Z):V` broadcasts premium-access changes.
+- ReSeam 0.41 requires `StringRef`-based patch metadata; this project added the patch module's generated string table and preserved the published patch ID.
+- [Manual GitHub Actions run 43843411678](https://github.com/stupidgiraffe/giraffe-patches/actions/runs/43843411678): **success**, engine 0.41.0, permanently signed, catalog verified, and real exact-APK patching succeeded (**1 applied, 1 dependency, 0 skipped, 0 failed**).
+- `classes2.dex` and `classes3.dex` remained byte-for-byte unchanged between original and patched APK.
+- Bundle SHA-256 `b811064d297dd9b383fcd1e8163e2e2c3a3a9a3fdefe049609d3f686b3a27a9d`; permanent Ed25519 public key `9b5228381bdce62d03e9df9654f02c9ceb9c06fd67722aa201a6c01cc989d89b`.
+- **Evidence level: CLI patch-stage verified, NOT device-verified.** The new bundle has not yet been imported/installed/used on the phone, and Pro activation, backup creation, and restore functionality have not been runtime-tested. The previous native backup problem was due to missing folder access, not a verified patch defect. Do not wipe or reset launcher data.
+
+Older compatibility records below are historical and must not be read as current b026 support.
+
+
 ## Smart Launcher build 024, ReSeam 0.31.0 (2026-10-26)
 
 Uploaded APK was inspected directly, not identified from filename: package `ginlemon.flowerfree`, version code `660240`, version name `6.6 build 024`, SHA-256 `de80631a4b305c9ae46ea86195085a36cdf21371cc092801ef36b549b2586b5b`. The premium purchase-items owner was reverified as `Li89;`, with its `lifetime` item in `Li89;.c:Lmm8;` and its premium-state broadcaster. The old `Lmn8;` descriptor in build 024 is **unrelated** and must not be reused. A version-pinned isolated ReSeam 0.31.0 Kotlin workspace lives in `projects/smartlauncher`, built only by the manual Smart Launcher workflow. **Compilation and signed manifest inspection are not a full patch/install runtime test**. Preserve working build 021 until accepted.
 
 
 
-**Current device-tested target:** Smart Launcher **6.6 build 021**, Android package `ginlemon.flowerfree`, version code `660210`.
+**Historical device-tested target:** Smart Launcher **6.6 build 021**, Android package `ginlemon.flowerfree`, version code `660210`.
 
-**Current source toolchain:** Reseam SDK and CLI **0.26.2**. The previous successful phone test used a **0.20.0** bundle; a newly built 0.26.2 bundle still needs an on-device retest.
+**Historical source toolchain:** Reseam SDK and CLI **0.26.2**. The previous successful phone test used a **0.20.0** bundle; a newly built 0.26.2 bundle still needs an on-device retest.
 
 | Item | Status | Evidence |
 | --- | --- | --- |
@@ -16,7 +29,7 @@ Uploaded APK was inspected directly, not identified from filename: package `ginl
 | ARM64-v8a APKM and universal APKM | **Same application DEX** | SHA-256 of `classes.dex` and `classes2.dex` matched across both supplied packages; only one variant was installation-tested |
 | Smart Launcher 6.6 build 020 | **Not supported here** | Previous exploratory bundle was replaced |
 | Smart Launcher builds 016–017 | **Not tested here** | Upstream [Morphe](https://github.com/hoo-dles/morphe-patches) may support earlier versions |
-| Anything after build 021 | **Unknown** | Do not assume obfuscated bytecode remains compatible |
+| Builds newer than 021 | **See version-specific entries above** | Each build must be independently re-fingerprinted and patch-tested |
 
 ## 0.26.4 device regression found on October 19, 2026
 

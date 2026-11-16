@@ -15,7 +15,7 @@ import app.reseam.patch.dex.AccessFlags
 import app.reseam.patch.dex.Opcode
 import app.reseam.patch.types.FieldRef
 
-private val SMART_LAUNCHER = "ginlemon.flowerfree"("6.6 build 024")
+private val SMART_LAUNCHER = "ginlemon.flowerfree"("6.6 build 026")
 
 private val signatureCheckMethod = method("Smart Launcher signature check") {
     strings("Not genuine apk. This may not stop humans but may stop machines.")
@@ -43,18 +43,20 @@ val disableSmartLauncherSignatureCheck = patch {
     }
 }
 
-// Verified against supplied original Smart Launcher 6.6 build 024 (660240) APK.
-// APK SHA256: de80631a4b305c9ae46ea86195085a36cdf21371cc092801ef36b549b2586b5b
-// The purchase-items owner moved from Lmn8; in build 021 to Li89; in build 024.
-// Li89;-><clinit>()V contains the unique purchase item "lifetime" marker,
-// followed by Lmm8; construction and the SPUT_OBJECT Li89;.c field write.
-// Li89;.a(Li89;,Context,boolean)V broadcasts the existing premium state event.
-// Lmm8;.b():boolean is the getter; Lmm8;.a(Context,boolean):void is setter.
-// The unrelated Lmn8; class still exists in 024; do not use it for this build.
-// Matchers remain exactly version-scoped; other builds require new APK analysis.
+// Verified from the uploaded original Smart Launcher 6.6 build 026 (660260) APK.
+// APK SHA256: 304eade55ce297c3f874c3fa745cae5dc6dce08f35185bbe8855fa3cc3e7bdf3
+// DEX inspection: lifetime purchase owner Lcn9; (build 024 had a different owner).
+// Lcn9;-><clinit>()V contains the lifetime string, an Lz09; constructor
+// invocation and SPUT_OBJECT into a static Lcn9; purchase-item field.
+// Lz09;.b():Z is its unique getter; Lz09;.a(Context,Z):V is its setter.
+// Lcn9;.a(Lcn9;,Context,Z):V broadcasts ginlemon.action.hasPremiumAccessChanged.
+// Lcn9;.a:Lcn9; is the singleton. The APK also contains the signature warning
+// and a public static App getter; these targets must pass the CLI patch test.
+// This patch remains scoped to exactly version 660260. Backup code must remain
+// untouched, and runtime backup/restore is a separate device acceptance check.
 private val purchaseItemsClass = classTarget("Smart Launcher purchase-items owner") {
-    bytecode.findClass("Li89;")
-        ?: error("Smart Launcher 6.6 build 024: verified purchase-items owner Li89; not found")
+    bytecode.findClass("Lcn9;")
+        ?: error("Smart Launcher 6.6 build 026: verified purchase-items owner Lcn9; not found")
 }
 
 private val purchaseItemsCtor = method("Smart Launcher purchase-items initializer") {
@@ -110,11 +112,8 @@ private val premiumAccessChanged = method("premium access changed broadcaster") 
     strings("ginlemon.action.hasPremiumAccessChanged")
 }
 
-val enableSmartLauncherPro = patch("Enable Pro") {
-    description(
-        "Marks the lifetime PurchasableItem active and broadcasts the app's " +
-            "existing premium-access-changed event."
-    )
+val enableSmartLauncherPro = patch(SmartLauncherPatchStrings.enablePro) {
+    description(SmartLauncherPatchStrings.enableProDescription)
     compatibleWith(SMART_LAUNCHER)
     dependsOn(disableSmartLauncherSignatureCheck)
     execute {
