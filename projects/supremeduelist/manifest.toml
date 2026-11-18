@@ -1,0 +1,6 @@
+[bundle]
+name = "giraffe-supremeduelist"
+author = "stupidgiraffe"
+description = "Experimental exact-build Supreme Duelist Stickman 4.0.7 ARM64 patches, adapted from Miguel's Patches."
+license = "GPL-3.0-or-later"
+format_version = 1
