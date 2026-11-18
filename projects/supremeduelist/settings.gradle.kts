@@ -7,5 +7,5 @@ pluginManagement {
         }
     }
 }
-plugins { id("app.reseam.workspace") version "0.41.0" }
+plugins { id("app.reseam.workspace") version "0.42.1" }
 rootProject.name = "giraffe-supremeduelist"
