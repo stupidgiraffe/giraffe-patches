@@ -1,0 +1,98 @@
+name: Build Supreme Duelist ReSeam 0.42.2 (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out isolated game patch source
+        uses: actions/checkout@v4
+        with:
+          ref: work/supreme-duelist-407-reseam-0422
+
+      - name: Verify latest released engine
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, urllib.request
+          u = "https://git.reseam.app/api/v1/repos/reseam/reseam/releases/latest"
+          q = urllib.request.Request(u, headers={"User-Agent":"giraffe-patches-manual"})
+          with urllib.request.urlopen(q, timeout=25) as f:
+              latest = json.load(f)["tag_name"]
+          if latest != "v0.42.2":
+              raise SystemExit(f"Latest release changed: {latest}. Verify and update engine pin.")
+          print(f"Verified upstream: {latest}")
+          PY
+          grep -F 'id("app.reseam.workspace") version "0.42.2"' projects/supremeduelist/settings.gradle.kts
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
+
+      - name: Install matching ReSeam 0.42.2 CLI
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 2 --connect-timeout 20 --max-time 120 \
+            https://cdn.reseam.app/engine/v0.42.2/reseam-linux-x64 \
+            --output "$RUNNER_TEMP/reseam"
+          chmod 755 "$RUNNER_TEMP/reseam"
+          "$RUNNER_TEMP/reseam" --version | grep -F '0.42.2'
+          echo "RESEAM_BIN=$RUNNER_TEMP/reseam" >> "$GITHUB_ENV"
+
+      - name: Configure permanent Reseam signing identity
+        env:
+          SIGNING_SEED: ${{ secrets.RESEAM_SIGNING_KEY_BASE64 }}
+        run: |
+          set -euo pipefail
+          test -n "$SIGNING_SEED" || { echo "Missing permanent signer" >&2; exit 1; }
+          umask 077
+          printf '%s' "$SIGNING_SEED" | base64 --decode > "$RUNNER_TEMP/giraffe-signing.key"
+          test "$(wc -c < "$RUNNER_TEMP/giraffe-signing.key")" -eq 32
+          echo "RESEAM_BUNDLE_KEY=$RUNNER_TEMP/giraffe-signing.key" >> "$GITHUB_ENV"
+
+      - name: Compile and sign Supreme Duelist bundle
+        working-directory: projects/supremeduelist
+        run: |
+          set -euo pipefail
+          gradle --no-daemon --console=plain bundle
+          test -s build/reseam/giraffe-supremeduelist.reseam
+
+      - name: Verify engine, target, catalog, signer
+        working-directory: projects/supremeduelist
+        run: |
+          set -euo pipefail
+          BUNDLE="build/reseam/giraffe-supremeduelist.reseam"
+          PUBKEY="9b5228381bdce62d03e9df9654f02c9ceb9c06fd67722aa201a6c01cc989d89b"
+          unzip -t "$BUNDLE"
+          unzip -p "$BUNDLE" manifest.toml | grep -Fx 'engine = "0.42.2"'
+          unzip -p "$BUNDLE" manifest.toml | grep -F 'com.Neurononfire.SupremeDuelist'
+          unzip -p "$BUNDLE" manifest.toml | grep -F 'versions = ["4.0.7"]'
+          unzip -p "$BUNDLE" manifest.toml | grep -F 'version_codes = [584]'
+          for name in "Bypass PairIP license check" "Remove ads (native)" "Free rewarded weapons (skip video)" "Coins: 999,999 each launch" "Unlock weapons, skins, maps and battle modes"; do
+            unzip -p "$BUNDLE" manifest.toml | grep -F "$name"
+          done
+          ACTUAL="$(unzip -p "$BUNDLE" manifest.pubkey | xxd -p -c 256)"
+          test "$ACTUAL" = "$PUBKEY" || { echo "Signer fingerprint mismatch" >&2; exit 1; }
+          "$RESEAM_BIN" bundle list "$BUNDLE" --trust "$PUBKEY" --verbose
+          sha256sum "$BUNDLE"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: giraffe-supremeduelist-407-reseam-0422
+          path: projects/supremeduelist/build/reseam/giraffe-supremeduelist.reseam
+          if-no-files-found: error
+          retention-days: 7
