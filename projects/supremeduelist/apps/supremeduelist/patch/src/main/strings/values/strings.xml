@@ -1,8 +1,12 @@
 <resources>
     <string name="bypass_pairip">Bypass PairIP license check</string>
-    <string name="bypass_pairip_description">Stops the Java-side PairIP license methods; intended for re-signed installations. Does not change native DRM.</string>
+    <string name="bypass_pairip_description">Stops the app\'s Java-side PairIP license methods on re-signed installations.</string>
     <string name="remove_ads">Remove ads (native)</string>
-    <string name="remove_ads_description">Forces RemoveAds.get_AdsRemoved to return true in the exact 4.0.7 ARM64 IL2CPP library.</string>
-    <string name="free_ad_rewards">Free rewarded weapon unlocks (native)</string>
-    <string name="free_ad_rewards_description">Experimental: redirects ShowRewardedWeaponAd to UnlockWeapon using the exact 4.0.7 ARM64 method addresses. No ad is shown.</string>
+    <string name="remove_ads_description">Forces RemoveAds.get_AdsRemoved to return true for 4.0.7.</string>
+    <string name="free_ad_rewards">Free rewarded weapons (skip video)</string>
+    <string name="free_ad_rewards_description">Skips the three direct weapon advertising calls. Existing weapon handlers still set the actual unlock flag and close the prompt. The button label may still say watch video.</string>
+    <string name="unlimited_coins">Coins: 999,999 each launch</string>
+    <string name="unlimited_coins_description">Sets the in-memory GameManager coin balance to 999,999 on creation. Not mathematically infinite; gameplay and persistence need testing.</string>
+    <string name="unlock_all">Unlock weapons, skins, maps and battle modes</string>
+    <string name="unlock_all_description">Unlocks selected weapons/skins in memory and forces map/battle-mode copied flags true. Suppresses rewarded weapon popup; actual gameplay and permanent save effects not yet tested.</string>
 </resources>
