@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -89,6 +89,18 @@ jobs:
           test "$ACTUAL" = "$PUBKEY" || { echo "Signer fingerprint mismatch" >&2; exit 1; }
           "$RESEAM_BIN" bundle list "$BUNDLE" --trust "$PUBKEY" --verbose
           sha256sum "$BUNDLE"
+
+
+      - name: Publish signed bundle to source branch for direct phone download
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp projects/supremeduelist/build/reseam/giraffe-supremeduelist.reseam dist/giraffe-supremeduelist-v4.0.7-reseam-0.42.2-experimental.reseam
+          git config user.name "giraffe-patches-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git add -f dist/giraffe-supremeduelist-v4.0.7-reseam-0.42.2-experimental.reseam
+          git commit -m "build(duelist): publish exact signed 0.42.2 test bundle [skip ci]" 
+          git push origin HEAD:refs/heads/work/supreme-duelist-407-reseam-0422
 
       - uses: actions/upload-artifact@v4
         with:
